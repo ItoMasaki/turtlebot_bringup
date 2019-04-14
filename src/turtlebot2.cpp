@@ -4,27 +4,33 @@
 #include <libkobuki.h>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 
 
-using namespace rt_net;
-using namespace std::chrono_literals;
+using namespace std;
 
-int main(int argc, char **argv) {
+class Turtlebot : public rclcpp::Node {
+	public : Turtlebot()
+		 : Node("Turtlebot") {
+		 	auto _cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel",
+					[this](geometry_msgs::msg::Twist::SharedPtr msg){
+					this->display(msg);
+					});
+		 };
 
-        rclcpp::init(argc, argv);
+	private:
+		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
 
-        auto node = rclcpp::Node::make_shared("greeter");
-        auto publisher = node->create_publisher<std_msgs::msg::String>("greeting");
+		 void display(geometry_msgs::msg::Twist::SharedPtr msg) {
+		 	cout << msg << endl;
+		 }
+};
 
-        while (rclcpp::ok()) {
 
+int main(int argc, char *argv[]) {
+	rclcpp::init(argc, argv);
+	rclcpp::spin(std::make_shared<Turtlebot>());
+	rclcpp::shutdown();
 
-        }
-
-        rclcpp::shutdown();
-
-        Kobuki* kobuki = createKobuki(KobukiStringArgument("/dev/ttyUSB1"));
-
-        delete kobuki;
-        return 0;
+	return 0;
 }
