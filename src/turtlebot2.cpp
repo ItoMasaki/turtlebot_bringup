@@ -6,23 +6,33 @@
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 
-
+using namespace rt_net;
 using namespace std;
 
 class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
 		 : Node("Turtlebot") {
-		 	auto _cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel",
+			// Kobuki Device
+			// const char *DeviceSpecial = "/dev/ttyUSB1";
+			// Kobuki *kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
+
+			// Velocity
+			auto _cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg){
-					this->display(msg);
+					this->controleVelocity(msg);
 					});
 		 };
 
 	private:
+		 float velocity_x;
+		 float velocity_y;
 		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
 
-		 void display(geometry_msgs::msg::Twist::SharedPtr msg) {
-		 	cout << msg << endl;
+		 void controleVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+			 velocity_x = msg->linear.x;
+			 velocity_y = msg->angular.z;
+
+			 cout << velocity_x << endl;
 		 }
 };
 
