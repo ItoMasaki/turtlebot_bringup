@@ -15,16 +15,11 @@ class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
 		 : Node("Turtlebot") {
 			// Kobuki Device
-<<<<<<< HEAD
+
 			// Linux
 			// const char *DeviceSpecial = "/dev/ttyUSB1";
 			// macOS
 			const char *DeviceSpecial = "/dev/ttys001";
-=======
-			// const char *DeviceSpecial = "/dev/ttys001";
-			const char *DeviceSpecial = "/dev/ttyUSB1";
-			Kobuki *kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
->>>>>>> b6bf1f1951aaaf629837e6633d6e478596425a3d
 
 			// init kobuki
 			kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
