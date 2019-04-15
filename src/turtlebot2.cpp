@@ -6,11 +6,6 @@
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 
-#ifdef __APPLE__
-const char *DeviceSpecial="/dev/ttys001";
-#elif
-const char *DeviceSpecial "/dev/ttyUSB1";
-#endif
 
 using std::placeholders::_1;
 using namespace rt_net;
@@ -20,25 +15,44 @@ class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
 		 : Node("Turtlebot") {
 			// Kobuki Device
-			// const char *DeviceSpecial = "/dev/ttys001";
-			Kobuki *kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
+			// Linux
+			// const char *DeviceSpecial = "/dev/ttyUSB1";
+			// macOS
+			const char *DeviceSpecial = "/dev/ttys001";
 
-			// Velocity
+			// init kobuki
+			kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
+
+			// subscriber cmd_vel
 			_cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
-					"cmd_vel", bind(&Turtlebot::controleVelocity, this, _1));
+					"cmd_vel", bind(&Turtlebot::controleByVelocity, this, _1));
+			// publishger
+			// [TODO] create topic to publish odometry
+			// _timer = this->create_publisher
+			
+			// [TODO] create topic to publish battey voltage residual quantity data.
+
 		 }
 
 	private:
-		 float velocity_x;
-		 float velocity_y;
+		 // init velocity;
+		 // linear must use 'm_per_sec'
+		 // angular must use 'rad_per_sec'
+		 float linearVelocity = 0;
+		 float angularVelocity = 0;
+
+		 // init _cmd_vel
 		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
+		 // init kobuki
+		 Kobuki *kobuki;
 
-		 void controleVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
-			 velocity_x = msg->linear.x;
-			 velocity_y = msg->angular.z;
+		 // controle the turtlebot2 using velocity data
+		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+			 linearVelocity  = msg->linear.x;
+			 angularVelocity = msg->angular.z;
 
-			 cout << velocity_x << endl;
-		 }
+			 this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
+		 };
 };
 
 
