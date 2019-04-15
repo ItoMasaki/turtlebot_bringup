@@ -13,8 +13,8 @@ class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
 		 : Node("Turtlebot") {
 			// Kobuki Device
-			// const char *DeviceSpecial = "/dev/ttyUSB1";
-			// Kobuki *kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
+			 const char *DeviceSpecial = "/dev/ttyUSB1";
+			 Kobuki *kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
 
 			// Velocity
 			auto _cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel",
