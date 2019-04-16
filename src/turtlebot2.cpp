@@ -14,6 +14,7 @@ using namespace std;
 class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
 		 : Node("Turtlebot") {
+			// Kobuki device special
 			const char* deviceSpecial = "/dev/kobuki";
 			// init kobuki
 			kobuki = createKobuki(KobukiStringArgument(deviceSpecial));
@@ -52,8 +53,6 @@ class Turtlebot : public rclcpp::Node {
 		 // controle the turtlebot2 using velocity data
 		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 
-			 counter += 0.1;
-			 cout << msg << " : " << counter << endl;
 
 			 linearVelocity  = msg->linear.x;
 			 angularVelocity = msg->angular.z;
