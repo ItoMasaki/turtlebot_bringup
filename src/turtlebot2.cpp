@@ -41,6 +41,9 @@ class Turtlebot : public rclcpp::Node {
 		 double linearVelocity = 0;
 		 double angularVelocity = 0;
 
+		 // counter
+		 double counter = 0.0;
+
 		 // init _cmd_vel
 		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
 		 // init kobuki
@@ -48,10 +51,12 @@ class Turtlebot : public rclcpp::Node {
 
 		 // controle the turtlebot2 using velocity data
 		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+
+			 counter += 0.1;
+			 cout << msg << " : " << counter << endl;
+
 			 linearVelocity  = msg->linear.x;
 			 angularVelocity = msg->angular.z;
-
-			 cout << linearVelocity << endl;
 
 			 this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
 		 };
