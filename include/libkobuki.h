@@ -175,7 +175,7 @@ enum DOCKSTATE {
 namespace rt_net {
 	class Kobuki;
 	class KobukiArgument;
-};
+}
 
 /**
  * @brief Kobukiインターフェースのオブジェクト作成
