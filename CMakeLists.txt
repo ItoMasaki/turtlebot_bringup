@@ -11,6 +11,7 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 include_directories(include)
 
@@ -29,7 +30,7 @@ add_library(kobukicwrapper    SHARED src/kobukicwrapper.cpp src/Kobuki_impl.cpp 
 
 add_executable(turtlebot2 src/turtlebot2.cpp src/DockingController.cpp src/Kobuki_impl.cpp src/Thread.cpp src/Transport.cpp src/libkobuki.cpp src/KobukiBase.cpp src/SerialPort.cpp src/Translator.cpp)
 
-ament_target_dependencies(turtlebot2 rclcpp std_msgs geometry_msgs lib/DockingController lib/Kobuki_impl lib/Thread lib/Transport lib/kobuki lib/KobukiBase lib/SerialPort lib/Translator lib/kobukicwrapper)
+ament_target_dependencies(turtlebot2 rclcpp std_msgs geometry_msgs nav_msgs lib/DockingController lib/Kobuki_impl lib/Thread lib/Transport lib/kobuki lib/KobukiBase lib/SerialPort lib/Translator lib/kobukicwrapper)
 
 target_include_directories(turtlebot2 PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

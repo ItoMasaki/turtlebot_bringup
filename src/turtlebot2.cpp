@@ -2,14 +2,17 @@
 #include <chrono>
 
 #include <libkobuki.h>
+
 #include <rclcpp/rclcpp.hpp>
+
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
-
+#include <nav_msgs/msg/odometry.hpp>
 
 using std::placeholders::_1;
 using namespace rt_net;
 using namespace std;
+using namespace chrono_literals;
 
 class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
@@ -20,8 +23,6 @@ class Turtlebot : public rclcpp::Node {
 			// init kobuki
 			// kobuki = createKobuki(KobukiStringArgument(deviceSpecial));
 
-			cout << "[*] Bring uped topic name" << endl;
-
 			// subscriber cmd_vel
 			_cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
 					"/cmd_vel",
@@ -30,39 +31,45 @@ class Turtlebot : public rclcpp::Node {
 						}
 					);
 
-			if (_cmd_vel != nullptr) {
-				cout << "  |- " << _cmd_vel->get_topic_name() << endl;
-			};
-
+			// timer
+			// timer_ = create_wall_timer(5ms, publishOdometry);
 			// publishger
 			// [TODO] create topic to publish odometry
-			// _timer = this->create_publisher
-			
+			_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
+
 			// [TODO] create topic to publish battey voltage residual quantity data.
 			
 			// [TODO] topic to publish time (timer)
 
 			// [TODO] recognize wheel up error
 
-		 }
+		    // controle the turtlebot2 using velocity data
+        	void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+
+            	linearVelocity  = msg->linear.x;
+                angularVelocity = msg->angular.z;
+
+				cout << this->kobuki->getBatteryVoltage() << endl;
+
+                //this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
+            };
 
 	private:
-		 // init _cmd_vel
-		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
+		// init velocity;
+		// linear must use [m/s]
+		// angular must use [rad/s]
+		double linearVelocity = 0;
+		double angularVelocity = 0;
 
-		 // init kobuki
-		 Kobuki *kobuki;
+		// init _cmd_vel
+		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
+		// init _odom
+		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odom;
+		// init timer
+		rclcpp::TimerBase::SharedPtr timer_;
+		// init kobuki
+		Kobuki *kobuki;
 
-		 double count = 0;
-
-		 // controle the turtlebot2 using velocity data
-		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg){
-			count += 0.01;
-
-			cout << msg->linear.x << "\t" << count << endl;
-
-			// this->kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
-		 };
 };
 
 
