@@ -23,6 +23,15 @@ class Turtlebot : public rclcpp::Node {
 			// init kobuki
 			// kobuki = createKobuki(KobukiStringArgument(deviceSpecial));
 
+	        // init _cmd_vel
+    	    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
+        	// init _odom
+	        rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odom;
+    	    // init timer
+        	rclcpp::TimerBase::SharedPtr timer_;
+	        // init kobuki
+    	    Kobuki *kobuki;
+
 			// subscriber cmd_vel
 			_cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
 					"/cmd_vel",
@@ -44,6 +53,7 @@ class Turtlebot : public rclcpp::Node {
 			// [TODO] recognize wheel up error
 
 		    // controle the turtlebot2 using velocity data
+	private:
         	void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 
             	linearVelocity  = msg->linear.x;
@@ -53,23 +63,6 @@ class Turtlebot : public rclcpp::Node {
 
                 //this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
             };
-
-	private:
-		// init velocity;
-		// linear must use [m/s]
-		// angular must use [rad/s]
-		double linearVelocity = 0;
-		double angularVelocity = 0;
-
-		// init _cmd_vel
-		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
-		// init _odom
-		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odom;
-		// init timer
-		rclcpp::TimerBase::SharedPtr timer_;
-		// init kobuki
-		Kobuki *kobuki;
-
 };
 
 
