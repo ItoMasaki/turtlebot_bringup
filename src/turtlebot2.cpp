@@ -17,12 +17,12 @@ class Turtlebot : public rclcpp::Node {
 			// Kobuki Device
 
 			// Linux
-			// const char *DeviceSpecial = "/dev/ttyUSB1";
+			const char *DeviceSpecial = "/dev/ttyUSB0";
 			// macOS
-			const char *DeviceSpecial = "/dev/ttys001";
+			// const char *DeviceSpecial = "/dev/ttys001";
 
 			// init kobuki
-			kobuki = createKobuki(KobukiStringArgument(DeviceSpecial));
+			kobuki = createKobuki(KobukiStringArgument("/dev/kobuki"));
 
 			// subscriber cmd_vel
 			_cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
