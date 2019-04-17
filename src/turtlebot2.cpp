@@ -32,6 +32,8 @@ class Turtlebot : public rclcpp::Node {
 			// _timer = this->create_publisher
 			
 			// [TODO] create topic to publish battey voltage residual quantity data.
+			
+			// [TODO] topic to publish time (timer)
 
 		 }
 
@@ -59,14 +61,14 @@ class Turtlebot : public rclcpp::Node {
 
 			 this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
 		 };
+
+		 // [TODO] recognize wheel up error
 };
 
 
 int main(int argc, char *argv[]) {
 	rclcpp::init(argc, argv);
-	
 	rclcpp::spin(make_shared<Turtlebot>());
-
 	rclcpp::shutdown();
 
 	return 0;
