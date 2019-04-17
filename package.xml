@@ -3,9 +3,9 @@
 <package format="2">
   <name>turtlebot_bringup</name>
   <version>0.1.0</version>
-  <description>TODO: Package description</description>
+  <description>This is package to bringup turtlebot2</description>
   <maintainer email="l1sum@icloud.com">l1sum</maintainer>
-  <license>TODO: License declaration</license>
+  <license>GNU General Public License</license>
 
   <build_depend>rclcpp</build_depend>
   <build_depend>std_msgs</build_depend>
