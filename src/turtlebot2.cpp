@@ -13,20 +13,27 @@ using namespace std;
 
 class Turtlebot : public rclcpp::Node {
 	public : Turtlebot()
-		 : Node("Turtlebot") {
+		: Node("Turtlebot") {
 			// Kobuki device special
 			const char* deviceSpecial = "/dev/kobuki";
+
 			// init kobuki
-			kobuki = createKobuki(KobukiStringArgument(deviceSpecial));
+			// kobuki = createKobuki(KobukiStringArgument(deviceSpecial));
+
+			cout << "[*] Bring uped topic name" << endl;
 
 			// subscriber cmd_vel
 			_cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
 					"/cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
 						this->controleByVelocity(msg);
-					}
-					//bind(&Turtlebot::controleByVelocity, this, _1)
+						}
 					);
+
+			if (_cmd_vel != nullptr) {
+				cout << "  |- " << _cmd_vel->get_topic_name() << endl;
+			};
+
 			// publishger
 			// [TODO] create topic to publish odometry
 			// _timer = this->create_publisher
@@ -35,34 +42,27 @@ class Turtlebot : public rclcpp::Node {
 			
 			// [TODO] topic to publish time (timer)
 
+			// [TODO] recognize wheel up error
+
 		 }
 
 	private:
-		 // init velocity;
-		 // linear must use 'm_per_sec'
-		 // angular must use 'rad_per_sec'
-		 double linearVelocity = 0;
-		 double angularVelocity = 0;
-
-		 // counter
-		 double counter = 0.0;
-
 		 // init _cmd_vel
 		 rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel;
+
 		 // init kobuki
 		 Kobuki *kobuki;
 
+		 double count = 0;
+
 		 // controle the turtlebot2 using velocity data
-		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+		 void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg){
+			count += 0.01;
 
+			cout << msg->linear.x << "\t" << count << endl;
 
-			 linearVelocity  = msg->linear.x;
-			 angularVelocity = msg->angular.z;
-
-			 this->kobuki->setTargetVelocity(linearVelocity, angularVelocity);
+			// this->kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
 		 };
-
-		 // [TODO] recognize wheel up error
 };
 
 
