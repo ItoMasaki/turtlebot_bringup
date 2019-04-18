@@ -35,6 +35,10 @@ class Turtlebot : public rclcpp::Node {
 		// publisher battery status
 		rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
 
+		// publisher and timer about odometry
+		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
+		rclcpp::TimerBase::SharedPtr odom_timer;
+
 		// pos_x
 		double pos_x;
 		double pos_y;
@@ -48,16 +52,23 @@ class Turtlebot : public rclcpp::Node {
 			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
 				delete kobuki;
 			}
+		};
 
+		// publishOdometry
+		void publishOdometry() {
 			kobuki->getPose(&pos_x, &pos_y, &pos_th);
-			cout << pos_x << endl;
 
+			cout << "x : " << pos_x << "\ty : " << pos_y << "\tth : " << pos_th << endl;
 		};
 
 	public :
 		Turtlebot() :
 			Node("Turtlebot") {
+				//////////////
+				// init kobuki
 				kobuki = createKobuki(KobukiStringArgument(device_special));
+
+				///////////////////////////////////
 				// topic to subscribe twist message
 				cmd_vel = this->create_subscription <geometry_msgs::msg::Twist> (
 					"/cmd_vel",
@@ -65,7 +76,11 @@ class Turtlebot : public rclcpp::Node {
 						controleByVelocity(msg);
 					}
 				);
-				cout << cmd_vel << endl;
+
+				////////////////////////////////////////////////////
+				// set timer to call for publishing odometry message
+				odom_timer = this->create_wall_timer(10ms, std::bind(&Turtlebot::publishOdometry, this));
+
 			};
 };
 
