@@ -17,6 +17,12 @@ class Turtlebot : public rclcpp::Node {
 	private :
 		// kobuki device special
 		const char* device_special = "/dev/kobuki";
+		// init kobuki
+		Kobuki *kobuki;
+
+		// max battery voltage
+		float max_voltage = 15.3;
+
 		// velocity
 		double linear_velocity = 0;
 		double angular_velocity = 0;
@@ -27,24 +33,28 @@ class Turtlebot : public rclcpp::Node {
 		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
 		rclcpp::TimerBase::SharedPtr timer;
 
-		// init kobuki
-		Kobuki *kobuki;
 
 		// controle by velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
-			this->kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
+			kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
+
+			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
+				delete kobuki;
+			}
 		};
 
 
 	public :
 		Turtlebot() :
 			Node("Turtlebot") {
+				kobuki = createKobuki(KobukiStringArgument(device_special));
 				cmd_vel = this->create_subscription <geometry_msgs::msg::Twist> (
 					"/cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
-						this->controleByVelocity(msg);
+						controleByVelocity(msg);
 					}
 				);
+				cout << cmd_vel << endl;
 			};
 };
 
