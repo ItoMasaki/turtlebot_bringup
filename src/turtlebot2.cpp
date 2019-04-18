@@ -18,7 +18,7 @@ class Turtlebot : public rclcpp::Node {
 	private :
 		// kobuki device special
 		const char* device_special = "/dev/kobuki";
-		
+
 		// init kobuki
 		Kobuki *kobuki;
 
@@ -48,10 +48,6 @@ class Turtlebot : public rclcpp::Node {
 			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
 				delete kobuki;
 			}
-
-			kobuki->getPose(&pos_x, &pos_y, &pos_th);
-			cout << pos_x << endl;
-
 		};
 
 	public :
@@ -65,7 +61,7 @@ class Turtlebot : public rclcpp::Node {
 						controleByVelocity(msg);
 					}
 				);
-				cout << cmd_vel << endl;
+
 			};
 };
 
