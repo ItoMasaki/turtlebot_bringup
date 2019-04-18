@@ -68,7 +68,8 @@ class Turtlebot : public rclcpp::Node {
 		// publishOdometry
 		void publishOdometry() {
 			kobuki->getPose(&pos_x, &pos_y, &pos_th);
-			cout << odom_msg << endl;
+			auto odom_msg = nav_msgs::msg::Odometry();
+			cout << odom_msg.pose.pose.position.x << endl;
 		};
 
 	public :
