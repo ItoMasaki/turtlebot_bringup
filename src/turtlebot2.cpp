@@ -8,6 +8,7 @@
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/battery_state.hpp>
 
 using namespace rt_net;
 using namespace std;
@@ -17,6 +18,7 @@ class Turtlebot : public rclcpp::Node {
 	private :
 		// kobuki device special
 		const char* device_special = "/dev/kobuki";
+		
 		// init kobuki
 		Kobuki *kobuki;
 
@@ -27,11 +29,16 @@ class Turtlebot : public rclcpp::Node {
 		double linear_velocity = 0;
 		double angular_velocity = 0;
 
-		// subscriber
+		// subscriber twist
 		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
-		// publisher
-		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
-		rclcpp::TimerBase::SharedPtr timer;
+
+		// publisher battery status
+		rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
+
+		// pos_x
+		double pos_x;
+		double pos_y;
+		double pos_th;
 
 
 		// controle by velocity
@@ -41,13 +48,17 @@ class Turtlebot : public rclcpp::Node {
 			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
 				delete kobuki;
 			}
-		};
 
+			kobuki->getPose(&pos_x, &pos_y, &pos_th);
+			cout << pos_x << endl;
+
+		};
 
 	public :
 		Turtlebot() :
 			Node("Turtlebot") {
 				kobuki = createKobuki(KobukiStringArgument(device_special));
+				// topic to subscribe twist message
 				cmd_vel = this->create_subscription <geometry_msgs::msg::Twist> (
 					"/cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
