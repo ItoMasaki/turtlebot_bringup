@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h>
 #include <chrono>
 
 #include <libkobuki.h>
@@ -42,6 +43,10 @@ class Turtlebot : public rclcpp::Node {
 		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
 		rclcpp::TimerBase::SharedPtr odom_timer;
 
+		///////////
+		// messages
+		nav_msgs::msg::Odometry::SharedPtr odom_msg;
+
 		/////////////
 		// postition
 		double pos_x;
@@ -55,12 +60,15 @@ class Turtlebot : public rclcpp::Node {
 
 			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
 				delete kobuki;
+				cout << "[!] Error : Wheel Drop" << endl;
+				exit(1);
 			}
 		};
 
 		// publishOdometry
 		void publishOdometry() {
 			kobuki->getPose(&pos_x, &pos_y, &pos_th);
+			cout << odom_msg << endl;
 		};
 
 	public :
