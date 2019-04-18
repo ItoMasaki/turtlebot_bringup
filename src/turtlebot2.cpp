@@ -29,17 +29,21 @@ class Turtlebot : public rclcpp::Node {
 		double linear_velocity = 0;
 		double angular_velocity = 0;
 
+		///////////////////
 		// subscriber twist
 		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
 
+		///////////////////////////
 		// publisher battery status
 		rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
 
+		/////////////////////////////////////
 		// publisher and timer about odometry
 		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
 		rclcpp::TimerBase::SharedPtr odom_timer;
 
-		// pos_x
+		/////////////
+		// postition
 		double pos_x;
 		double pos_y;
 		double pos_th;
@@ -57,8 +61,6 @@ class Turtlebot : public rclcpp::Node {
 		// publishOdometry
 		void publishOdometry() {
 			kobuki->getPose(&pos_x, &pos_y, &pos_th);
-
-			cout << "x : " << pos_x << "\ty : " << pos_y << "\tth : " << pos_th << endl;
 		};
 
 	public :
