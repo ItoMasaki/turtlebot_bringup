@@ -11,9 +11,11 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
 
+
 using namespace rt_net;
 using namespace std;
 using namespace chrono_literals;
+
 
 class Turtlebot : public rclcpp::Node {
 	private :
@@ -26,10 +28,6 @@ class Turtlebot : public rclcpp::Node {
 		// max battery voltage
 		float max_voltage = 15.3;
 
-		// velocity
-		double linear_velocity = 0;
-		double angular_velocity = 0;
-
 		///////////////////
 		// subscriber twist
 		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
@@ -40,7 +38,7 @@ class Turtlebot : public rclcpp::Node {
 
 		/////////////////////////////////////
 		// publisher and timer about odometry
-		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
+		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_odom;
 		rclcpp::TimerBase::SharedPtr odom_timer;
 
 		///////////
@@ -49,27 +47,37 @@ class Turtlebot : public rclcpp::Node {
 
 		/////////////
 		// postition
-		double pos_x;
-		double pos_y;
-		double pos_th;
-
+		double position_x;
+		double position_y;
+		double orientation_theata;
+		////////////
+		// velocity
+		double velocity_x;
+		double velocity_y;
+		double velocity_rad;
 
 		// controle by velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 			kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
 
-			if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
-				delete kobuki;
-				cout << "[!] Error : Wheel Drop" << endl;
-				exit(1);
-			}
 		};
 
 		// publishOdometry
 		void publishOdometry() {
-			kobuki->getPose(&pos_x, &pos_y, &pos_th);
-			auto odom_msg = nav_msgs::msg::Odometry();
-			cout << odom_msg.pose.pose.position.x << endl;
+			// handle error
+            if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
+                delete kobuki;
+                cout << "[!] Error : Wheel Drop" << endl;
+                abort();
+			} else {
+				kobuki->getPose(&position_x, &position_y, &orientation_theata);
+				auto odom_msg = nav_msgs::msg::Odometry();
+				odom_msg.pose.pose.position.x = position_x;
+				odom_msg.pose.pose.position.y = position_y;
+				odom_msg.pose.pose.orientation.z = orientation_theata;
+
+				pub_odom->publish(odom_msg);
+			}
 		};
 
 	public :
@@ -90,7 +98,8 @@ class Turtlebot : public rclcpp::Node {
 
 				////////////////////////////////////////////////////
 				// set timer to call for publishing odometry message
-				odom_timer = this->create_wall_timer(10ms, std::bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(100ms, std::bind(&Turtlebot::publishOdometry, this));
+				pub_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
 
 			};
 };
