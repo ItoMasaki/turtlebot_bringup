@@ -66,17 +66,23 @@ class Turtlebot : public rclcpp::Node {
 		void publishOdometry() {
 			// handle error
             if (kobuki->isRightWheelDrop() or kobuki->isLeftWheelDrop()) {
+
                 delete kobuki;
                 cout << "[!] Error : Wheel Drop" << endl;
                 abort();
+
 			} else {
+
 				kobuki->getPose(&position_x, &position_y, &orientation_theata);
 				auto odom_msg = nav_msgs::msg::Odometry();
 				odom_msg.pose.pose.position.x = position_x;
 				odom_msg.pose.pose.position.y = position_y;
 				odom_msg.pose.pose.orientation.z = orientation_theata;
 
+				cout << kobuki->getLeftMotorCurrent() << endl;
+
 				pub_odom->publish(odom_msg);
+
 			}
 		};
 
