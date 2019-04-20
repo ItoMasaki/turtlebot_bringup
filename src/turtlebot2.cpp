@@ -47,9 +47,13 @@ class Turtlebot : public rclcpp::Node {
 
 		/////////////
 		// postition
-		double position_x;
-		double position_y;
-		double orientation_theata;
+		double now_position_x;
+		double now_position_y;
+		double now_orientation_theta;
+
+		double old_position_x = 0;
+		double old_position_y = 0;
+		double old_orientation_theta = 0;
 		////////////
 		// velocity
 		double velocity_x;
@@ -59,7 +63,6 @@ class Turtlebot : public rclcpp::Node {
 		// controle by velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 			kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
-
 		};
 
 		// publishOdometry
@@ -73,16 +76,13 @@ class Turtlebot : public rclcpp::Node {
 
 			} else {
 
-				kobuki->getPose(&position_x, &position_y, &orientation_theata);
 				auto odom_msg = nav_msgs::msg::Odometry();
-				odom_msg.pose.pose.position.x = position_x;
-				if (position_x >= 1.000) {
-					delete kobuki;
-				}
-				odom_msg.pose.pose.position.y = position_y;
-				odom_msg.pose.pose.orientation.z = orientation_theata;
 
-				cout << kobuki->getLeftMotorCurrent() << "\tA" << '\t' << kobuki->getLeftMotorEncoder() << endl;
+				kobuki->getPose(&now_position_x, &now_position_y, &now_orientation_theta);
+
+				odom_msg.pose.pose.position.x = now_position_x;
+				odom_msg.pose.pose.position.y = now_position_y;
+				odom_msg.pose.pose.orientation.z = now_orientation_theta;
 
 				pub_odom->publish(odom_msg);
 
