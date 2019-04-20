@@ -10,6 +10,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
+#include <builtin_interfaces/msg/time.hpp>
 
 
 using namespace rt_net;
@@ -27,6 +28,10 @@ class Turtlebot : public rclcpp::Node {
 
 		// max battery voltage
 		float max_voltage = 15.3;
+
+		// chrono timer
+		chrono::system_clock::time_point base_time = chrono::system_clock::now();
+		chrono::system_clock::time_point now_time;
 
 		///////////////////
 		// subscriber twist
@@ -80,9 +85,19 @@ class Turtlebot : public rclcpp::Node {
 
 				kobuki->getPose(&now_position_x, &now_position_y, &now_orientation_theta);
 
+				// calculate delata time
+				now_time = chrono::system_clock::now();
+				auto delta_time = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
+				cout << delta_time.count() << endl;
+				// [TODO] millisecond and second
+
+				odom_msg.header.frame_id = "base_link";
+				// odom_msg.stamp
 				odom_msg.pose.pose.position.x = now_position_x;
 				odom_msg.pose.pose.position.y = now_position_y;
 				odom_msg.pose.pose.orientation.z = now_orientation_theta;
+
+				// [TODO] calc velocity which is based on odometry
 
 				pub_odom->publish(odom_msg);
 
