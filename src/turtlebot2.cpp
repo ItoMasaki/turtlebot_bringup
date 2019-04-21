@@ -87,12 +87,13 @@ class Turtlebot : public rclcpp::Node {
 
 				// calculate delata time
 				now_time = chrono::system_clock::now();
-				auto delta_time = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
-				cout << delta_time.count() << endl;
-				// [TODO] millisecond and second
+				auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
+				auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
 
-				odom_msg.header.frame_id = "base_link";
-				// odom_msg.stamp
+				odom_msg.child_frame_id = "base_footprint";
+				odom_msg.header.frame_id = "odom";
+				odom_msg.header.stamp.sec = delta_seconds.count();
+				odom_msg.header.stamp.nanosec = delta_milliseconds.count() - delta_seconds.count()*1000;
 				odom_msg.pose.pose.position.x = now_position_x;
 				odom_msg.pose.pose.position.y = now_position_y;
 				odom_msg.pose.pose.orientation.z = now_orientation_theta;
@@ -122,7 +123,7 @@ class Turtlebot : public rclcpp::Node {
 
 				////////////////////////////////////////////////////
 				// set timer to call for publishing odometry message
-				odom_timer = this->create_wall_timer(15ms, std::bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(1ms, std::bind(&Turtlebot::publishOdometry, this));
 				pub_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
 
 			};
