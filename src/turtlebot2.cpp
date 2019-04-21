@@ -125,6 +125,10 @@ class Turtlebot : public rclcpp::Node {
 				odom_timer = this->create_wall_timer(15ms, std::bind(&Turtlebot::publishOdometry, this));
 				pub_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
 
+				///////////////////////////////////////////////////
+				// set timer to call for publishing battery message
+				// battery_timer - this->create_wall_timer()
+
 			};
 };
 
