@@ -163,7 +163,7 @@ namespace net {
     };
     
   };//namespace ysuga
-};//namespace org
+}//namespace org
 
 #endif
 

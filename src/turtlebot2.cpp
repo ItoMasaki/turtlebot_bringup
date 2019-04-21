@@ -104,7 +104,6 @@ class Turtlebot : public rclcpp::Node {
 				odom_msg.pose.pose.orientation.z = now_orientation_theta;
 
 				// [TODO] calc velocity which is based on odometry
-				calcrateVelocity();
 
 				old_position_x = now_position_x;
 				old_position_y = now_position_y;
