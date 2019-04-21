@@ -68,7 +68,12 @@ class Turtlebot : public rclcpp::Node {
 		// controle by velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 			kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
-		};
+		}
+
+		// 
+		void calcrateVelocity() {
+			
+		}
 
 		// publishOdometry
 		void publishOdometry() {
