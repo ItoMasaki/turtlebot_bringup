@@ -26,3 +26,24 @@ This is the turtlebot2 bring up on Crystal(ROS2)
  ```
  ros2 run turtlebot_bringup turtlebot2
  ```
+
+## turtlebot_bringup with ydlidar_ros2
+ firstly, download ydlidar_ros2
+ ```
+ git clone https://github.com/yangfuyuan/ydlidar_ros2.git
+ ```
+
+ secondly, build any pacakges
+ ```
+ colcon build
+ ```
+ 
+ finally, load any packages
+ ```
+ source install/local_setup.bash
+ ```
+
+### bringup minimal launch
+ ```
+ ros2 launch turtlebot_bringup minimal.launch.py
+ ```
