@@ -72,6 +72,7 @@ class Turtlebot : public rclcpp::Node {
 
 		// 
 		void calcrateVelocity() {
+			cout << old_position_x << endl;
 		}
 
 		// publishOdometry
