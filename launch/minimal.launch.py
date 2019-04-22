@@ -9,14 +9,14 @@ def generate_launch_description():
 			msg="ROS2 start turtlebot_bringup minimal node."
 		),
 
-        launch_ros.actions.Node(
-            package="turtlebot_bringup",
-            node_executable="turtlebot2",
-		),
-
 		launch_ros.actions.Node(
 			package="ydlidar",
 			node_executable="ydlidar_node",
 		),
+
+        launch_ros.actions.Node(
+            package="turtlebot_bringup",
+            node_executable="turtlebot2",
+        ),
 
 	])
