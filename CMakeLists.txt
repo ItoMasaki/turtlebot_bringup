@@ -20,25 +20,33 @@ include_directories(include)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
 
-add_library(DockingController SHARED src/DockingController.cpp)
-add_library(Kobuki_impl       SHARED src/Kobuki_impl.cpp src/Thread.cpp src/KobukiBase.cpp src/DockingController.cpp src/SerialPort.cpp src/Translator.cpp src/Transport.cpp)
-add_library(Thread            SHARED src/Thread.cpp)
-add_library(Transport         SHARED src/Transport.cpp src/SerialPort.cpp)
-add_library(kobuki            SHARED src/libkobuki.cpp src/Kobuki_impl.cpp src/Thread.cpp src/KobukiBase.cpp src/DockingController.cpp src/SerialPort.cpp src/Translator.cpp src/Transport.cpp)
-add_library(KobukiBase        SHARED src/KobukiBase.cpp src/SerialPort.cpp src/Thread.cpp src/Transport.cpp src/Translator.cpp)
-add_library(SerialPort        SHARED src/SerialPort.cpp)
-add_library(Translator        SHARED src/Translator.cpp)
-add_library(kobukicwrapper    SHARED src/kobukicwrapper.cpp src/Kobuki_impl.cpp src/Thread.cpp src/libkobuki.cpp src/DockingController.cpp src/KobukiBase.cpp src/SerialPort.cpp src/Transport.cpp src/Translator.cpp)
+add_library(DockingController SHARED kobuki/DockingController.cpp)
+add_library(Kobuki_impl       SHARED kobuki/Kobuki_impl.cpp kobuki/Thread.cpp kobuki/KobukiBase.cpp kobuki/DockingController.cpp kobuki/SerialPort.cpp kobuki/Translator.cpp kobuki/Transport.cpp)
+add_library(Thread            SHARED kobuki/Thread.cpp)
+add_library(Transport         SHARED kobuki/Transport.cpp kobuki/SerialPort.cpp)
+add_library(kobuki            SHARED kobuki/libkobuki.cpp kobuki/Kobuki_impl.cpp kobuki/Thread.cpp kobuki/KobukiBase.cpp kobuki/DockingController.cpp kobuki/SerialPort.cpp kobuki/Translator.cpp kobuki/Transport.cpp)
+add_library(KobukiBase        SHARED kobuki/KobukiBase.cpp kobuki/SerialPort.cpp kobuki/Thread.cpp kobuki/Transport.cpp kobuki/Translator.cpp)
+add_library(SerialPort        SHARED kobuki/SerialPort.cpp)
+add_library(Translator        SHARED kobuki/Translator.cpp)
+add_library(kobukicwrapper    SHARED kobuki/kobukicwrapper.cpp kobuki/Kobuki_impl.cpp kobuki/Thread.cpp kobuki/libkobuki.cpp kobuki/DockingController.cpp kobuki/KobukiBase.cpp kobuki/SerialPort.cpp kobuki/Transport.cpp kobuki/Translator.cpp)
 
-add_executable(turtlebot2 src/turtlebot2.cpp src/DockingController.cpp src/Kobuki_impl.cpp src/Thread.cpp src/Transport.cpp src/libkobuki.cpp src/KobukiBase.cpp src/SerialPort.cpp src/Translator.cpp)
+add_executable(turtlebot2 src/turtlebot2.cpp kobuki/DockingController.cpp kobuki/Kobuki_impl.cpp kobuki/Thread.cpp kobuki/Transport.cpp kobuki/libkobuki.cpp kobuki/KobukiBase.cpp kobuki/SerialPort.cpp kobuki/Translator.cpp)
+
+add_executable(teleop_node src/teleop_node.cpp)
 
 ament_target_dependencies(turtlebot2 rclcpp std_msgs geometry_msgs nav_msgs sensor_msgs lib/DockingController lib/Kobuki_impl lib/Thread lib/Transport lib/kobuki lib/KobukiBase lib/SerialPort lib/Translator lib/kobukicwrapper)
+
+ament_target_dependencies(teleop_node rclcpp sensor_msgs geometry_msgs)
 
 target_include_directories(turtlebot2 PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 install(TARGETS turtlebot2
+  EXPORT export_${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS teleop_node
   EXPORT export_${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME})
 
