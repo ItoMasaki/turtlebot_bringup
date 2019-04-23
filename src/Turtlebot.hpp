@@ -40,9 +40,9 @@ class Turtlebot : public rclcpp::Node {
 		rclcpp::TimerBase::SharedPtr odom_timer;
 
 		// now position
-		double N_position_x;
-		double N_position_y;
-		double N_orientation_theta;
+		double N_position_x = 0;
+		double N_position_y = 0;
+		double N_orientation_theta = 0;
 
 		// old position
 		double O_position_x = 0;
@@ -50,15 +50,18 @@ class Turtlebot : public rclcpp::Node {
 		double O_orientation_theta = 0;
 
 		// velocity
-		double velocity_x;
-		double velocity_y;
-		double velocity_theta;
+		double velocity_x = 0;
+		double velocity_y = 0;
+		double velocity_theta = 0;
 
 		// seconds
 		double millisec;
 
 		// check Wheel Drop
-		bool checkWheelDrop();
+		void checkWheelDrop();
+
+		// calculate velocity
+		double calculateVelocity(double now_velocity, double old_velocity, float time);
 
 		// controle that based on velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg);
@@ -68,5 +71,15 @@ class Turtlebot : public rclcpp::Node {
 
 	public :
 		Turtlebot() :
-			Node("Turtlebot") {}
+			Node("Turtlebot") {
+				cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
+					"cmd_vel",
+					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
+						controleByVelocity(msg);
+					}
+				);
+
+				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
+				odom_timer = this->create_wall_timer(15ms, bind(&Turtlebot::publishOdometry, this));
+			}
 };
