@@ -12,11 +12,13 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package="turtlebot_bringup",
             node_executable="turtlebot2",
+			output="screen",
 	),
 
         launch_ros.actions.Node(
             package="ydlidar",
-	    node_executable="ydlidar_node",
+	        node_executable="ydlidar",
+			output="screen",
 	),
 
     ])
