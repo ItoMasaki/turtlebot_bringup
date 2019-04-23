@@ -102,12 +102,13 @@ class Turtlebot : public rclcpp::Node {
 				odom_msg.pose.pose.position.y = now_position_y;
 				odom_msg.pose.pose.orientation.z = now_orientation_theta;
 
-				// [TODO] calc velocity which is based on odometry
-				velocity_x = (now_position_x - old_position_x)/0.015;
-				velocity_y = (now_position_y - old_position_y)/0.015;
-				velocity_theta = (now_orientation_theta - old_orientation_theta)/0.015;
+				velocity_x = (now_position_x - old_position_x)/0.020;
+				velocity_y = (now_position_y - old_position_y)/0.020;
+				velocity_theta = (now_orientation_theta - old_orientation_theta)/0.020;
 
-				cout << velocity_x << endl;
+				odom_msg.twist.twist.linear.x = velocity_x;
+				odom_msg.twist.twist.linear.y = velocity_y;
+				odom_msg.twist.twist.angular.z = velocity_theta;
 
 				old_position_x = now_position_x;
 				old_position_y = now_position_y;
@@ -136,7 +137,7 @@ class Turtlebot : public rclcpp::Node {
 
 				////////////////////////////////////////////////////
 				// set timer to call for publishing odometry message
-				odom_timer = this->create_wall_timer(15ms, std::bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(20ms, std::bind(&Turtlebot::publishOdometry, this));
 				pub_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
 
 			};
