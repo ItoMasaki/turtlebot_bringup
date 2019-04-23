@@ -10,14 +10,14 @@ def generate_launch_description():
 	),
 
         launch_ros.actions.Node(
-            package="turtlebot_bringup",
-            node_executable="turtlebot2",
-			output="screen",
-	),
+            package="ydlidar",
+            node_executable="ydlidar_node",
+            output="screen",
+    ),
 
         launch_ros.actions.Node(
-            package="ydlidar",
-	        node_executable="ydlidar",
+            package="turtlebot_bringup",
+            node_executable="turtlebot2",
 			output="screen",
 	),
 

@@ -19,7 +19,6 @@ void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 
 void Turtlebot::publishOdometry() {
 	checkWheelDrop();
-	cout << "CALLED!" << endl;
     auto odom_msg = nav_msgs::msg::Odometry();
 
     kobuki->getPose(&N_position_x, &N_position_y, &N_orientation_theta);
@@ -42,8 +41,6 @@ void Turtlebot::publishOdometry() {
 	odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.015);
 	odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.015);
 	odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.015);
-
-    cout << velocity_x << endl;
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;
