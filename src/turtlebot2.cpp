@@ -63,16 +63,13 @@ class Turtlebot : public rclcpp::Node {
 		// velocity
 		double velocity_x;
 		double velocity_y;
-		double velocity_rad;
+		double velocity_theta;
+		// millisec
+		double millisec;
 
 		// controle by velocity
 		void controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 			kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
-		}
-
-		// 
-		void calcrateVelocity() {
-			cout << old_position_x << endl;
 		}
 
 		// publishOdometry
@@ -95,15 +92,22 @@ class Turtlebot : public rclcpp::Node {
 				auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
 				auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
 
+				millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
+
 				odom_msg.child_frame_id = "base_footprint";
 				odom_msg.header.frame_id = "odom";
 				odom_msg.header.stamp.sec = delta_seconds.count();
-				odom_msg.header.stamp.nanosec = delta_milliseconds.count() - delta_seconds.count()*1000;
+				odom_msg.header.stamp.nanosec = millisec;
 				odom_msg.pose.pose.position.x = now_position_x;
 				odom_msg.pose.pose.position.y = now_position_y;
 				odom_msg.pose.pose.orientation.z = now_orientation_theta;
 
 				// [TODO] calc velocity which is based on odometry
+				velocity_x = (now_position_x - old_position_x)/0.015;
+				velocity_y = (now_position_y - old_position_y)/0.015;
+				velocity_theta = (now_orientation_theta - old_orientation_theta)/0.015;
+
+				cout << velocity_x << endl;
 
 				old_position_x = now_position_x;
 				old_position_y = now_position_y;
@@ -132,7 +136,7 @@ class Turtlebot : public rclcpp::Node {
 
 				////////////////////////////////////////////////////
 				// set timer to call for publishing odometry message
-				odom_timer = this->create_wall_timer(1ms, std::bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(15ms, std::bind(&Turtlebot::publishOdometry, this));
 				pub_odom = this->create_publisher<nav_msgs::msg::Odometry>("/odom");
 
 			};
