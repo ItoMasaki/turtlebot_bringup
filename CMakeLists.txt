@@ -4,7 +4,7 @@ project(turtlebot_bringup)
 # Default to C++14
 set(CMAKE_CXX_STANDARD 14)
 
-add_compile_options(-Wall -Wextra -Wpedantic -Wunused-variable -Wunused-parameter -Wpedantic)
+add_compile_options(-O3 -Wall -Wextra -Wpedantic -Wunused-variable -Wunused-parameter -Wpedantic)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
