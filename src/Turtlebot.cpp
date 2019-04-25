@@ -49,7 +49,7 @@ void Turtlebot::publishOdometry() {
     odom->publish(odom_msg);
 }
 
-double Turtlebot::calculateVelocity(double now_velocity, double old_velocity, float time){
-	return (old_velocity - now_velocity)/time;
+double Turtlebot::calculateVelocity(double N_position, double O_position, float time){
+	return (O_position - N_position)/time;
 }
 
