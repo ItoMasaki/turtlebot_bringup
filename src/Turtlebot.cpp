@@ -54,3 +54,6 @@ double Turtlebot::calculateVelocity(double now_velocity, double old_velocity, fl
 	return (old_velocity - now_velocity)/time;
 }
 
+void Turtlebot::publishInertial() {
+	cout << kobuki->getInertialAngle() << endl;
+}
