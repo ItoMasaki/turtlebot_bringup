@@ -6,6 +6,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
 
@@ -35,9 +36,13 @@ class Turtlebot : public rclcpp::Node {
 		// init publisher
 		rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
 		rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
+		rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr inertial;
 		
 		// init timer for odom
 		rclcpp::TimerBase::SharedPtr odom_timer;
+
+		// init timer for inertial
+		rclcpp::TimerBase::SharedPtr inertial_timer;
 
 		// now position
 		double N_position_x = 0;
@@ -83,6 +88,8 @@ class Turtlebot : public rclcpp::Node {
 				);
 
 				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
-				odom_timer = this->create_wall_timer(15ms, bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(50ms, bind(&Turtlebot::publishOdometry, this));
+				
+				inertial_timer = this->create_wall_timer(50ms, bind(&Turtlebot::publishInertial, this));
 			}
 };
