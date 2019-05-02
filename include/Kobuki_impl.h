@@ -92,6 +92,9 @@ namespace rt_net {
     uint16_t getRightMotorEncoder() {return m_RightEncoder;}
     uint16_t getLeftMotorEncoder() {return m_LeftEncoder;}
 
+	double getInertialAngle() {return m_InertialAngle;}
+	double getInertialAngleRate() {return m_InertialAngleRate;}
+
     void getPose(double* x, double* y, double* th) {*x=m_X, *y=m_Y, *th = m_Th;}
     void setPose(double x, double y, double th) {m_X = x, m_Y = y, m_Th = th;}
 

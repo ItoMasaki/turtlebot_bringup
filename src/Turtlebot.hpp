@@ -66,6 +66,9 @@ class Turtlebot : public rclcpp::Node {
 		// publish odometry
 		void publishOdometry();
 
+		// publish inertial
+		void publishInertial();
+
 	public :
 		Turtlebot() :
 			Node("Turtlebot") {}

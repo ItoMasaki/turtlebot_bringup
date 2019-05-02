@@ -31,8 +31,6 @@ void Turtlebot::checkWheelDrop(){
 
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 	checkWheelDrop();
-
-
 };
 
 void Turtlebot::publishOdometry() {
