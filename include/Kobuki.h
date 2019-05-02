@@ -427,6 +427,18 @@ namespace rt_net {
 	 */
 	virtual DOCKSTATE getDockState() = 0;
 
+	/**
+	 *
+	 *
+	 */
+	virtual double getInertialAngle() = 0;
+
+	/**
+	 *
+	 *
+	 */
+	virtual double getInertialAngleRate() = 0;
+
   };
 
 }
