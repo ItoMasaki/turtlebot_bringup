@@ -88,8 +88,8 @@ class Turtlebot : public rclcpp::Node {
 				);
 
 				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
-				odom_timer = this->create_wall_timer(50ms, bind(&Turtlebot::publishOdometry, this));
+				odom_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 				
-				inertial_timer = this->create_wall_timer(50ms, bind(&Turtlebot::publishInertial, this));
+				inertial_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 			}
 };
