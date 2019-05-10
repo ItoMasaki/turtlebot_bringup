@@ -14,6 +14,7 @@ void Turtlebot::checkWheelDrop(){
 }
 
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+	checkWheelDrop();
 	kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
 }
 
@@ -38,8 +39,8 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation.z = N_orientation_theta;
 
-	odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.015);
-	odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.015);
+	odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.02);
+	odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.02);
 	odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.015);
 
     O_position_x = N_position_x;
@@ -53,3 +54,6 @@ double Turtlebot::calculateVelocity(double N_position, double O_position, float 
 	return (O_position - N_position)/time;
 }
 
+void Turtlebot::publishInertial() {
+	cout << kobuki->getInertialAngle() << endl;
+}
