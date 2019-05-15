@@ -4,6 +4,7 @@
 
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/battery_state.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -64,6 +65,10 @@ class Turtlebot : public rclcpp::Node {
 
 		// check Wheel Drop
 		void checkWheelDrop();
+
+		// translate_coordinate
+        // geometry_msgs::msg::Quaternion translateCoordinate(double x, double, y, double, z);
+		void translateCoordinate(double x, double y, double z);
 
 		// calculate velocity
 		double calculateVelocity(double now_velocity, double old_velocity, float time);
