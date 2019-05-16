@@ -66,8 +66,8 @@ void Turtlebot::publishOdometry() {
 }
 
 // 速度計算
-double Turtlebot::calculateVelocity(double now_velocity, double old_velocity, float time){
-	return (old_velocity - now_velocity)/time;
+double Turtlebot::calculateVelocity(double N_position, double O_position, float time){
+	return (O_position - N_position)/time;
 }
 
 // [TODO] 回転慣性値のブロードキャスト
