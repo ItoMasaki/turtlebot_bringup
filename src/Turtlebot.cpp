@@ -56,7 +56,7 @@ void Turtlebot::publishOdometry() {
 	odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.02);
 	odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.02);
 
-	odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.015);
+	odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.02);
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;
