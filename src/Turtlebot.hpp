@@ -55,11 +55,6 @@ class Turtlebot : public rclcpp::Node {
 		double O_position_y = 0;
 		double O_orientation_theta = 0;
 
-		// velocity
-		double velocity_x = 0;
-		double velocity_y = 0;
-		double velocity_theta = 0;
-
 		// seconds
 		double millisec;
 
@@ -67,8 +62,7 @@ class Turtlebot : public rclcpp::Node {
 		void checkWheelDrop();
 
 		// translate_coordinate
-        // geometry_msgs::msg::Quaternion translateCoordinate(double x, double, y, double, z);
-		void translateCoordinate(double x, double y, double z);
+        geometry_msgs::msg::Quaternion translateCoordinate(double x, double y, double z);
 
 		// calculate velocity
 		double calculateVelocity(double now_velocity, double old_velocity, float time);
