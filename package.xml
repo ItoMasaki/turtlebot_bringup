@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>turtlebot_bringup</name>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
   <description>This is package to bringup turtlebot2</description>
   <maintainer email="l1sum@icloud.com">l1sum</maintainer>
   <license>GNU General Public License</license>
