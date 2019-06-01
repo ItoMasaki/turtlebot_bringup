@@ -3,6 +3,8 @@
 
 #include <Turtlebot.hpp>
 
+#include <sensor_msgs/msg/imu.hpp>
+
 using namespace std;
 
 // ホイールが地面から離れたことを検知
@@ -72,5 +74,20 @@ double Turtlebot::calculateVelocity(double N_position, double O_position, float 
 
 // [TODO] 回転慣性値のブロードキャスト
 void Turtlebot::publishInertial() {
+	auto imu_msg = sensor_msgs::msg::Imu();
+
+	now_time = chrono::system_clock::now();
+	auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
+	auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
+
+	millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
+
+	imu_msg.header.frame_id      = "imu";
+	imu_msg.header.stamp.sec     = delta_seconds.count();
+	imu_msg.header.stamp.nanosec = millisec;
+
 	cout << kobuki->getInertialAngle() << endl;
+	cout << kobuki->getInertialAngleRate() << endl;
+
+	inertial->publish(imu_msg);
 }
