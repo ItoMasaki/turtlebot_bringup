@@ -7,6 +7,10 @@
 
 using namespace std;
 
+/*
+ * [TODO] QoSをpublisherに対して実装
+ */
+
 // ホイールが地面から離れたことを検知
 void Turtlebot::checkWheelDrop(){
 	if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
@@ -15,6 +19,7 @@ void Turtlebot::checkWheelDrop(){
 		abort();
 	}
 }
+
 
 // オイラー角からクオータニオンへ変換
 geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y, double z){
@@ -27,11 +32,13 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 	return quaternion;
 }
 
+
 // 速度制御
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 	checkWheelDrop();
 	kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
 }
+
 
 // オドメトリのブロードキャスト
 void Turtlebot::publishOdometry() {
@@ -67,12 +74,14 @@ void Turtlebot::publishOdometry() {
     odom->publish(odom_msg);
 }
 
+
 // 速度計算
 double Turtlebot::calculateVelocity(double N_position, double O_position, float time){
 	return (O_position - N_position)/time;
 }
 
-// [TODO] 回転慣性値のブロードキャスト
+
+// 回転慣性値のブロードキャスト
 void Turtlebot::publishInertial() {
 	auto imu_msg = sensor_msgs::msg::Imu();
 
@@ -86,8 +95,11 @@ void Turtlebot::publishInertial() {
 	imu_msg.header.stamp.sec     = delta_seconds.count();
 	imu_msg.header.stamp.nanosec = millisec;
 
-	cout << kobuki->getInertialAngle() << endl;
-	cout << kobuki->getInertialAngleRate() << endl;
+	imu_msg.orientation = translateCoordinate(0, 0, kobuki->getInertialAngle());
+
+	imu_msg.angular_velocity.x = 0.0;
+	imu_msg.angular_velocity.y = 0.0;
+	imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
 
 	inertial->publish(imu_msg);
 }
