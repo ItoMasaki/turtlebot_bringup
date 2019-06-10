@@ -17,8 +17,10 @@ int main(int argc, char *argv[]) {
 
 	rclcpp::init(argc, argv);
 	auto node = rclcpp::Node::make_shared("teleop");
+
+	auto cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
 	
-	auto cmd_vel_topic = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel");
+	auto cmd_vel_topic = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", cmd_vel_qos_profile);
 
 	// init topic to subscribe joy topic
 	auto joy_topic = node->create_subscription<sensor_msgs::msg::Joy>("joy",callback);

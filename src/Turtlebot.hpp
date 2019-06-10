@@ -79,6 +79,7 @@ class Turtlebot : public rclcpp::Node {
 		// Quality of Service
 		rmw_qos_profile_t odom_qos_profile = rmw_qos_profile_sensor_data;
 		rmw_qos_profile_t imu_qos_profile = rmw_qos_profile_sensor_data;
+		rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
 
 	public :
 		Turtlebot() :
@@ -87,7 +88,8 @@ class Turtlebot : public rclcpp::Node {
 					"cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
 						controleByVelocity(msg);
-					}
+					},
+					cmd_vel_qos_profile
 				);
 
 				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom", odom_qos_profile);
