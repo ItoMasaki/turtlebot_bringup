@@ -25,7 +25,7 @@ class Turtlebot : public rclcpp::Node {
 		Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
 
 		// max voltage
-		float max_voltage = 15.3;
+		// float max_voltage = 15.3;
 
 		// init chrono timer
 		chrono::system_clock::time_point base_time;
@@ -76,6 +76,10 @@ class Turtlebot : public rclcpp::Node {
 		// publish inertial
 		void publishInertial();
 
+		// Quality of Service
+		rmw_qos_profile_t odom_qos_profile = rmw_qos_profile_sensor_data;
+		rmw_qos_profile_t imu_qos_profile = rmw_qos_profile_sensor_data;
+
 	public :
 		Turtlebot() :
 			Node("Turtlebot") {
@@ -86,9 +90,10 @@ class Turtlebot : public rclcpp::Node {
 					}
 				);
 
-				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
+				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom", odom_qos_profile);
 				odom_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 				
+				inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu", imu_qos_profile);
 				inertial_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 			}
 };
