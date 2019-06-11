@@ -21,7 +21,7 @@ class TeleopNode : public rclcpp::Node {
             twist.linear.x = msg->axes[1]/2;
             twist.angular.z = msg->axes[0];
 
-            cout << twist.linear.x << '\t' << twist.angular.z << endl;
+			vel_topic->publish(twist);
         }
 
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_topic;
