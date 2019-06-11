@@ -6,30 +6,26 @@
 using namespace std;
 
 auto twist = geometry_msgs::msg::Twist();
+rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_topic;
 
 void callback(const sensor_msgs::msg::Joy::SharedPtr msg) {
 	twist.linear.x = msg->axes[1]/2;
 	twist.angular.z = msg->axes[0];
-	//cmd_vel_topic.publish(twist);
+	//cout << twist.linear.x << "\t" << twist.angular.z << endl;
 }
 
 int main(int argc, char *argv[]) {
 
 	rclcpp::init(argc, argv);
 	auto node = rclcpp::Node::make_shared("teleop");
-
-	auto cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
-	
-	auto cmd_vel_topic = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", cmd_vel_qos_profile);
+	vel_topic = node->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel");
 
 	// init topic to subscribe joy topic
-	auto joy_topic = node->create_subscription<sensor_msgs::msg::Joy>("joy",callback);
+	auto joy_topic = node->create_subscription<sensor_msgs::msg::Joy>("/joy", callback);
 
-	while (rclcpp::ok()) {
-		cout << twist.linear.x << "\t" << twist.angular.z << endl;
-		cmd_vel_topic->publish(twist);
-
+	while (rclcpp::ok()){
 		rclcpp::spin_some(node);
+		vel_topic->publish(twist);
 	}
 
 	rclcpp::shutdown();
