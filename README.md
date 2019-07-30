@@ -4,6 +4,7 @@ This is the turtlebot2 bring up on Crystal(ROS2)
 ## implimentation
  /cmd_vel - you can control by velocity which is based on Twist type.  
  /odom    - you can get some data about odometry.
+ /imu     -
  
 ## crytical stop
  If you bring up the turtlebot2, turtlebot execute the crytical stop function.
