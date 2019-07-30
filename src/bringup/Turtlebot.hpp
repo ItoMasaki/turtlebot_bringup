@@ -10,6 +10,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
+#include "PID.hpp"
 
 using namespace rt_net;
 using namespace std;
@@ -24,6 +25,8 @@ class Turtlebot : public rclcpp::Node {
 		// init kobuki
 		Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
 
+        PID *pid = new PID(0.5, 0.3, 0.1);
+        float current_velocity = 0;
 		// max voltage
 		// float max_voltage = 15.3;
 
@@ -88,14 +91,13 @@ class Turtlebot : public rclcpp::Node {
 					"cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
 						controleByVelocity(msg);
-					},
-					cmd_vel_qos_profile
+					}
 				);
 
-				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom", odom_qos_profile);
+				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
 				odom_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 				
-				inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu", imu_qos_profile);
+				inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu");
 				inertial_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 			}
 };

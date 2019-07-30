@@ -7,9 +7,6 @@
 
 using namespace std;
 
-/*
- * [TODO] QoSをpublisherに対して実装
- */
 
 // ホイールが地面から離れたことを検知
 void Turtlebot::checkWheelDrop(){
@@ -99,6 +96,16 @@ void Turtlebot::publishInertial() {
 
 	imu_msg.angular_velocity.x = 0.0;
 	imu_msg.angular_velocity.y = 0.0;
+
+	double InertialAngleRate = kobuki->getInertialAngleRate()/60000;
+	bool flag = (int)InertialAngleRate;
+
+	//if ( flag ) {
+	//	cout << InertialAngleRate << endl;
+	//} else {
+	//	cout << -InertialAngleRate << endl;
+	//}
+
 	imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
 
 	inertial->publish(imu_msg);
