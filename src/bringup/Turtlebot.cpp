@@ -30,7 +30,7 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 }
 
 
-// 速度制御
+// PID速度制御
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
