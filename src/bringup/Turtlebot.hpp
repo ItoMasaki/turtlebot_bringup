@@ -25,9 +25,14 @@ class Turtlebot : public rclcpp::Node {
         // init kobuki
         Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
 
+        float Kp = 0.5;
+        float Ki = 0.3;
+        float Kd = 0.1;
+
         PID *pid = new PID(0.5, 0.3, 0.1);
-        float current_angular = 0;
-        float system_angular = 0;
+        float target_angular_velocity = 0;
+        float system_angular_velocity = 0;
+
         // max voltage
         // float max_voltage = 15.3;
 
@@ -53,6 +58,11 @@ class Turtlebot : public rclcpp::Node {
         double N_position_x = 0;
         double N_position_y = 0;
         double N_orientation_theta = 0;
+
+        // now velocity
+        double N_linear_x_velocity = 0;
+        double N_linear_y_velocity = 0;
+        double N_linear_z_velocity = 0;
   
         // old position
         double O_position_x = 0;

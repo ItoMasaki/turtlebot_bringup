@@ -33,9 +33,16 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 // 速度制御
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
-    current_angular = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
-    system_angular = pid->system(msg->linear.z, current_angular);
-    kobuki->setTargetVelocity(msg->linear.x, system_angular);
+
+    if (msg->linear.z > 110.0) {
+        RCLCPP_INFO(this->get_logger(), "OVER 110.0 [rad/s]");
+        target_angular_velocity = 110.0;
+    } else {
+        target_angular_velocity = msg->linear.z;
+    }
+
+    system_angular_velocity = pid->system(target_angular_velocity, N_linear_z_velocity);
+    kobuki->setTargetVelocity(msg->linear.x, system_angular_velocity);
 }
 
 
@@ -61,10 +68,14 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
 
-    odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.01);
-    odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.01);
+    N_linear_x_velocity = calculateVelocity(N_position_x, O_position_x, 0.01);
+    N_linear_y_velocity = calculateVelocity(N_position_y, O_position_y, 0.01);
+    N_linear_z_velocity = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
 
-    odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
+    odom_msg.twist.twist.linear.x = N_linear_x_velocity;
+    odom_msg.twist.twist.linear.y = N_linear_y_velocity;
+
+    odom_msg.twist.twist.angular.z = N_linear_z_velocity;
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;
