@@ -10,36 +10,38 @@ using namespace std;
 
 // ホイールが地面から離れたことを検知
 void Turtlebot::checkWheelDrop(){
-	if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
-		delete kobuki;
-		cout << "[!] Error : Wheel Drop" << endl;
-		abort();
-	}
+    if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
+        delete kobuki;
+        cout << "[!] Error : Wheel Drop" << endl;
+        abort();
+    }
 }
 
 
 // オイラー角からクオータニオンへ変換
 geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y, double z){
-	auto quaternion = geometry_msgs::msg::Quaternion();
-	quaternion.w = cos(x/2)*cos(y/2)*cos(z/2) + sin(x/2)*sin(y/2)*sin(z/2);
-	quaternion.x = sin(x/2)*cos(y/2)*cos(z/2) - cos(x/2)*sin(y/2)*sin(z/2);
-	quaternion.y = cos(x/2)*sin(y/2)*cos(z/2) + sin(x/2)*cos(y/2)*sin(z/2);
-	quaternion.z = cos(x/2)*cos(y/2)*sin(z/2) - sin(x/2)*sin(y/2)*cos(z/2);
+    auto quaternion = geometry_msgs::msg::Quaternion();
+    quaternion.w = cos(x/2)*cos(y/2)*cos(z/2) + sin(x/2)*sin(y/2)*sin(z/2);
+    quaternion.x = sin(x/2)*cos(y/2)*cos(z/2) - cos(x/2)*sin(y/2)*sin(z/2);
+    quaternion.y = cos(x/2)*sin(y/2)*cos(z/2) + sin(x/2)*cos(y/2)*sin(z/2);
+    quaternion.z = cos(x/2)*cos(y/2)*sin(z/2) - sin(x/2)*sin(y/2)*cos(z/2);
 
-	return quaternion;
+    return quaternion;
 }
 
 
 // 速度制御
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
-	checkWheelDrop();
-	kobuki->setTargetVelocity(msg->linear.x, msg->angular.z);
+    checkWheelDrop();
+    current_angular = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
+    system_angular = pid->system(msg->linear.z, current_angular);
+    kobuki->setTargetVelocity(msg->linear.x, system_angular);
 }
 
 
 // オドメトリのブロードキャスト
 void Turtlebot::publishOdometry() {
-	checkWheelDrop();
+    checkWheelDrop();
     auto odom_msg = nav_msgs::msg::Odometry();
 
     kobuki->getPose(&N_position_x, &N_position_y, &N_orientation_theta);
@@ -59,10 +61,10 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
 
-	odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.02);
-	odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.02);
+    odom_msg.twist.twist.linear.x = calculateVelocity(N_position_x, O_position_x, 0.01);
+    odom_msg.twist.twist.linear.y = calculateVelocity(N_position_y, O_position_y, 0.01);
 
-	odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.02);
+    odom_msg.twist.twist.angular.z = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;
@@ -74,39 +76,39 @@ void Turtlebot::publishOdometry() {
 
 // 速度計算
 double Turtlebot::calculateVelocity(double N_position, double O_position, float time){
-	return (O_position - N_position)/time;
+    return (O_position - N_position)/time;
 }
 
 
 // 回転慣性値のブロードキャスト
 void Turtlebot::publishInertial() {
-	auto imu_msg = sensor_msgs::msg::Imu();
+    auto imu_msg = sensor_msgs::msg::Imu();
 
-	now_time = chrono::system_clock::now();
-	auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
-	auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
+    now_time = chrono::system_clock::now();
+    auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
+    auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
 
-	millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
+    millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
 
-	imu_msg.header.frame_id      = "imu";
-	imu_msg.header.stamp.sec     = delta_seconds.count();
-	imu_msg.header.stamp.nanosec = millisec;
+    imu_msg.header.frame_id      = "imu";
+    imu_msg.header.stamp.sec     = delta_seconds.count();
+    imu_msg.header.stamp.nanosec = millisec;
 
-	imu_msg.orientation = translateCoordinate(0, 0, kobuki->getInertialAngle());
+    imu_msg.orientation = translateCoordinate(0, 0, kobuki->getInertialAngle());
 
-	imu_msg.angular_velocity.x = 0.0;
-	imu_msg.angular_velocity.y = 0.0;
+    imu_msg.angular_velocity.x = 0.0;
+    imu_msg.angular_velocity.y = 0.0;
 
-	double InertialAngleRate = kobuki->getInertialAngleRate()/60000;
-	bool flag = (int)InertialAngleRate;
+    double InertialAngleRate = kobuki->getInertialAngleRate()/60000;
+    bool flag = (int)InertialAngleRate;
 
-	//if ( flag ) {
-	//	cout << InertialAngleRate << endl;
-	//} else {
-	//	cout << -InertialAngleRate << endl;
-	//}
+    //if ( flag ) {
+    //  cout << InertialAngleRate << endl;
+    //} else {
+    //  cout << -InertialAngleRate << endl;
+    //}
 
-	imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
+    imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
 
-	inertial->publish(imu_msg);
+    inertial->publish(imu_msg);
 }
