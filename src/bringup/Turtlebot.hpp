@@ -91,7 +91,8 @@ class Turtlebot : public rclcpp::Node {
 					"cmd_vel",
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
 						controleByVelocity(msg);
-					}
+					},
+                    cmd_vel_qos_profile
 				);
 
 				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
