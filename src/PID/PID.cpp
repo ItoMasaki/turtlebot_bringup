@@ -19,7 +19,7 @@ float PID::integral(float E){
 
 
 float PID::differential(float E){
-    float diff = Ep - E;
+    diff = Ep - E;
 
     Ep = E;
 

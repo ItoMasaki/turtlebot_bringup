@@ -25,11 +25,11 @@ class Turtlebot : public rclcpp::Node {
         // init kobuki
         Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
 
-        float Kp = 0.5;
+        float Kp = 1.0;
         float Ki = 0.3;
         float Kd = 0.1;
 
-        PID *pid = new PID(0.5, 0.3, 0.1);
+        PID *pid = new PID(Kp, Ki, Kd);
         float target_angular_velocity = 0;
         float system_angular_velocity = 0;
 
@@ -99,16 +99,17 @@ class Turtlebot : public rclcpp::Node {
         Turtlebot() :
             Node("Turtlebot") {
             cmd_vel = this->create_subscription<geometry_msgs::msg::Twist>(
-                "cmd_vel",
+                "turtlebot2/command_velocity",
                 [this](geometry_msgs::msg::Twist::SharedPtr msg) {
                     controleByVelocity(msg);
-                }
+                },
+                cmd_vel_qos_profile
             );
 
-            odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
+            odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry");
             odom_timer = this->create_wall_timer(10ms, bind(&Turtlebot::publishOdometry, this));
 
-            inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu");
+            inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu");
             inertial_timer = this->create_wall_timer(10ms, bind(&Turtlebot::publishInertial, this));
         }
 };

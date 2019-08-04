@@ -13,6 +13,8 @@ class PID
         float Es = 0;
         float Ep = 0;
 
+        float diff = 0;
+
         float system(float R, float Y);
 
     private:

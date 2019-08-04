@@ -12,7 +12,7 @@ using namespace std;
 void Turtlebot::checkWheelDrop(){
     if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
         delete kobuki;
-        cout << "[!] Error : Wheel Drop" << endl;
+        RCLCPP_INFO(this->get_logger(), "WHEEL DROP");
         abort();
     }
 }
@@ -34,14 +34,18 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
-    if (msg->linear.z > 110.0) {
-        RCLCPP_INFO(this->get_logger(), "OVER 110.0 [rad/s]");
-        target_angular_velocity = 110.0;
+    if (msg->angular.z > 100) {
+        RCLCPP_INFO(this->get_logger(), "OVER 110.0 [deg/s]");
+        target_angular_velocity = M_PI*100/180;
+    } else if(msg->angular.z < -100) {
+        RCLCPP_INFO(this->get_logger(), "OVER -110.0 [deg/s]");
+        target_angular_velocity = -M_PI*100/180;
     } else {
-        target_angular_velocity = msg->linear.z;
+        target_angular_velocity = M_PI*msg->angular.z/180;
     }
 
     system_angular_velocity = pid->system(target_angular_velocity, N_linear_z_velocity);
+    cout << system_angular_velocity << endl;
     kobuki->setTargetVelocity(msg->linear.x, system_angular_velocity);
 }
 
