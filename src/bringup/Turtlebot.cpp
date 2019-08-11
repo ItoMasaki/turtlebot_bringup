@@ -21,39 +21,41 @@ void Turtlebot::checkWheelDrop(){
 // オイラー角からクオータニオンへ変換
 geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y, double z){
     auto quaternion = geometry_msgs::msg::Quaternion();
-    quaternion.w = cos(x/2)*cos(y/2)*cos(z/2) + sin(x/2)*sin(y/2)*sin(z/2);
-    quaternion.x = sin(x/2)*cos(y/2)*cos(z/2) - cos(x/2)*sin(y/2)*sin(z/2);
-    quaternion.y = cos(x/2)*sin(y/2)*cos(z/2) + sin(x/2)*cos(y/2)*sin(z/2);
-    quaternion.z = cos(x/2)*cos(y/2)*sin(z/2) - sin(x/2)*sin(y/2)*cos(z/2);
+    quaternion.w = cos(x/2.0)*cos(y/2.0)*cos(z/2.0) + sin(x/2.0)*sin(y/2.0)*sin(z/2.0);
+    quaternion.x = sin(x/2.0)*cos(y/2.0)*cos(z/2.0) - cos(x/2.0)*sin(y/2.0)*sin(z/2.0);
+    quaternion.y = cos(x/2.0)*sin(y/2.0)*cos(z/2.0) + sin(x/2.0)*cos(y/2.0)*sin(z/2.0);
+    quaternion.z = cos(x/2.0)*cos(y/2.0)*sin(z/2.0) - sin(x/2.0)*sin(y/2.0)*cos(z/2.0);
 
     return quaternion;
 }
 
-
-// PID速度制御
-void Turtlebot::controleByVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
+// get velocity of geometry
+void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
-    if (msg->angular.z > 100) {
+    if (msg->angular.z >= 110) {
         RCLCPP_INFO(this->get_logger(), "OVER 110.0 [deg/s]");
-        target_angular_velocity = M_PI*100/180;
-    } else if(msg->angular.z < -100) {
+        Target_Angular_Velocity = M_PI*11/18;
+
+    } else if(msg->angular.z <= -110) {
         RCLCPP_INFO(this->get_logger(), "OVER -110.0 [deg/s]");
-        target_angular_velocity = -M_PI*100/180;
+        Target_Angular_Velocity = -M_PI*11/18;
+
     } else {
-        target_angular_velocity = M_PI*msg->angular.z/180;
+        Target_Angular_Velocity = M_PI*msg->angular.z/180;
+
     }
 
-    system_angular_velocity = pid->system(target_angular_velocity, N_linear_z_velocity);
-    cout << system_angular_velocity << endl;
-    kobuki->setTargetVelocity(msg->linear.x, system_angular_velocity);
+    cout << System_Angular_Velocity << endl;
+
+    kobuki->setTargetVelocity(0, Target_Angular_Velocity);
 }
 
 
 // オドメトリのブロードキャスト
 void Turtlebot::publishOdometry() {
     checkWheelDrop();
-    auto odom_msg = nav_msgs::msg::Odometry();
+    //auto odom_msg = nav_msgs::msg::Odometry();
 
     kobuki->getPose(&N_position_x, &N_position_y, &N_orientation_theta);
 
@@ -72,13 +74,12 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
 
-    N_linear_x_velocity = calculateVelocity(N_position_x, O_position_x, 0.01);
-    N_linear_y_velocity = calculateVelocity(N_position_y, O_position_y, 0.01);
-    N_linear_z_velocity = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.01);
+    N_linear_x_velocity = ((N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
+    N_linear_y_velocity = (-(N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
+    N_linear_z_velocity = (N_orientation_theta - O_orientation_theta)/0.02;
 
     odom_msg.twist.twist.linear.x = N_linear_x_velocity;
     odom_msg.twist.twist.linear.y = N_linear_y_velocity;
-
     odom_msg.twist.twist.angular.z = N_linear_z_velocity;
 
     O_position_x = N_position_x;
