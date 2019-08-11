@@ -1,10 +1,10 @@
 # ros2 for TurtleBot2_bringup
-This is the turtlebot2 bring up on Crystal(ROS2)
+This is the turtlebot2 bring up on Dashing(ROS2)
 
 ## implimentation
- /cmd_vel - you can control by velocity which is based on Twist type.  
- /odom    - you can get some data about odometry.  
- /imu     -
+ turtlebot2/commands/velocity - you can control by velocity which is based on Twist type.  
+ turtlebot2/odometry    - you can subscribe odometry.  
+ turtlebot2/imu     - you can subscribe inertial sensor data.
  
 ## crytical stop
  If you bring up the turtlebot2, turtlebot execute the crytical stop function.
@@ -20,6 +20,7 @@ This is the turtlebot2 bring up on Crystal(ROS2)
 
  ```
  source install/local_setup.bash
+ source install/setup.bash
  ```
 
  Third, you can run the turtlebot_bringup
@@ -42,6 +43,7 @@ This is the turtlebot2 bring up on Crystal(ROS2)
  finally, load any packages
  ```
  source install/local_setup.bash
+ source install/setup.bash
  ```
 
 ### bringup minimal launch
