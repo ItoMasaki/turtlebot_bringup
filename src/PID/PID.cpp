@@ -1,25 +1,23 @@
 #include "PID.hpp"
 
-PID::PID(float Kp, float Ki, float Kd){
-    Kp = Kp;
-    Ki = Ki;
-    Kd = Kd;
+float PID::error(float R, float Y){
+    return R - Y;    
 }
 
-float PID::average(float R, float Y){
-    return Kp*(R - Y);
+float PID::proportional(float E){
+    return Kp*E;
 }
 
 
 float PID::integral(float E){
-    Es = Es + E;
+    Es += E*dt;
 
     return Ki*Es;
 }
 
 
 float PID::differential(float E){
-    diff = Ep - E;
+    diff = (Ep - E)/dt;
 
     Ep = E;
 
@@ -28,9 +26,10 @@ float PID::differential(float E){
 
 
 float PID::system(float R, float Y){
-    float P = average(R, Y);
-    float I = integral(P);
-    float D = differential(P);
+        E = error(R, Y);
+        P = proportional(E);
+        I = integral(E);
+        D = differential(E);
 
     return P + I + D;
 }
