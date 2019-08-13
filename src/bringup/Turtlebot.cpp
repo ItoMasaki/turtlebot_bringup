@@ -8,6 +8,27 @@
 using namespace std;
 
 
+Turtlebot::Turtlebot() : Node("Turtlebot"){
+    kobuki = createKobuki(KobukiStringArgument(device_special));
+
+    kobuki->setPose(0.0, 0.0, 0.0);    
+
+    velocity = this->create_subscription<geometry_msgs::msg::Twist>(
+        "turtlebot2/commands/velocity",
+        [this](geometry_msgs::msg::Twist::SharedPtr msg) {
+            getVelocity(msg);
+        },
+        sensor_qos_profile
+    );
+
+    odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry", sensor_qos_profile);
+    odometryTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
+
+    inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu", sensor_qos_profile);
+    inertialTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
+}
+
+
 // ホイールが地面から離れたことを検知
 void Turtlebot::checkWheelDrop(){
     if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
@@ -55,7 +76,6 @@ void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 // オドメトリのブロードキャスト
 void Turtlebot::publishOdometry() {
     checkWheelDrop();
-    //auto odom_msg = nav_msgs::msg::Odometry();
 
     kobuki->getPose(&N_position_x, &N_position_y, &N_orientation_theta);
 
@@ -75,7 +95,7 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
 
     N_linear_x_velocity = ((N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
-    N_linear_y_velocity = (-(N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
+    N_linear_y_velocity = ((O_position_x - N_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
     N_linear_z_velocity = (N_orientation_theta - O_orientation_theta)/0.02;
 
     odom_msg.twist.twist.linear.x = N_linear_x_velocity;

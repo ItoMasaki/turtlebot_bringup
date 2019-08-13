@@ -17,114 +17,91 @@ using namespace std;
 using namespace chrono_literals;
 
 
-class Turtlebot : public rclcpp::Node {
-    private :
-        // kobuki device special
-        const char * device_special = "/dev/kobuki";
-
-        // init kobuki
-        Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
-
-        float Kp = 0.1;
-        float Ki = 0.00;
-        float Kd = 0.00;
-
-        PID *pid = new PID();
-        float Target_Angular_Velocity = 0;
-        float System_Angular_Velocity = 0;
-
-        // max voltage
-        // float max_voltage = 15.3;
-
-        // init chrono timer
-        chrono::system_clock::time_point base_time;
-        chrono::system_clock::time_point now_time;
-
-        // run time
-        float run_time = 1/50;
-
-        // init subscription
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity;
-
-        // init publisher
-        rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
-        rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
-        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr inertial;
-
-        // init timer
-        rclcpp::TimerBase::SharedPtr odometryTimer;
-        rclcpp::TimerBase::SharedPtr inertialTimer;
-        rclcpp::TimerBase::SharedPtr PIDTimer;
-  
-        // now position
-        double N_position_x = 0;
-        double N_position_y = 0;
-        double N_orientation_theta = 0;
-
-        // now velocity
-        double N_linear_x_velocity = 0;
-        double N_linear_y_velocity = 0;
-        double N_linear_z_velocity = 0;
-  
-        // old position
-        double O_position_x = 0;
-        double O_position_y = 0;
-        double O_orientation_theta = 0;
-
-        // seconds
-        double millisec;
-  
-        // check Wheel Drop
-        void checkWheelDrop();
-  
-        // translate_coordinate
-        geometry_msgs::msg::Quaternion translateCoordinate(double x, double y, double z);
-
-        // init odom
-        nav_msgs::msg::Odometry odom_msg = nav_msgs::msg::Odometry();
-   
-        // calculate velocity
-        double calculateVelocity(double now_velocity, double old_velocity, float time);
-
-        // get velocity
-        void getVelocity(geometry_msgs::msg::Twist::SharedPtr msg);
-
-        // controle that based on velocity
-        void controleByVelocity();
-
-        // publish odometry
-        void publishOdometry();
-
-        // publish inertial
-        void publishInertial();
-
-        // Quality of Service
-        rmw_qos_profile_t sensor_qos_profile = rmw_qos_profile_sensor_data;
-
-    public :
-        Turtlebot() :
-            Node("Turtlebot") {
+class Turtlebot :
+    public rclcpp::Node {
+        private :
             // kobuki device special
             const char * device_special = "/dev/kobuki";
 
             // init kobuki
-            Kobuki *kobuki = createKobuki(KobukiStringArgument(device_special));
-            kobuki->setPose(0.0, 0.0, 0.0);
+            Kobuki *kobuki;
+    
+            float Kp = 0.1;
+            float Ki = 0.00;
+            float Kd = 0.00;
+    
+            PID *pid = new PID();
+            float Target_Angular_Velocity = 0;
+            float System_Angular_Velocity = 0;
+    
+            // max voltage
+            // float max_voltage = 15.3;
+    
+            // init chrono timer
+            chrono::system_clock::time_point base_time;
+            chrono::system_clock::time_point now_time;
+    
+            // run time
+            float run_time = 1/50;
+    
+            // init subscription
+            rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity;
+    
+            // init publisher
+            rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
+            rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
+            rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr inertial;
+    
+            // init timer
+            rclcpp::TimerBase::SharedPtr odometryTimer;
+            rclcpp::TimerBase::SharedPtr inertialTimer;
+            rclcpp::TimerBase::SharedPtr PIDTimer;
+      
+            // now position
+            double N_position_x = 0;
+            double N_position_y = 0;
+            double N_orientation_theta = 0;
+    
+            // now velocity
+            double N_linear_x_velocity = 0;
+            double N_linear_y_velocity = 0;
+            double N_linear_z_velocity = 0;
+      
+            // old position
+            double O_position_x = 0;
+            double O_position_y = 0;
+            double O_orientation_theta = 0;
+    
+            // seconds
+            double millisec;
+      
+            // check Wheel Drop
+            void checkWheelDrop();
+      
+            // translate_coordinate
+            geometry_msgs::msg::Quaternion translateCoordinate(double x, double y, double z);
+    
+            // init odom
+            nav_msgs::msg::Odometry odom_msg = nav_msgs::msg::Odometry();
+       
+            // calculate velocity
+            double calculateVelocity(double now_velocity, double old_velocity, float time);
+    
+            // get velocity
+            void getVelocity(geometry_msgs::msg::Twist::SharedPtr msg);
+    
+            // controle that based on velocity
+            void controleByVelocity();
+    
+            // publish odometry
+            void publishOdometry();
+    
+            // publish inertial
+            void publishInertial();
+    
+            // Quality of Service
+            rmw_qos_profile_t sensor_qos_profile = rmw_qos_profile_sensor_data;
 
-
-            velocity = this->create_subscription<geometry_msgs::msg::Twist>(
-                "turtlebot2/command_velocity",
-                [this](geometry_msgs::msg::Twist::SharedPtr msg) {
-                    getVelocity(msg);
-                },
-                sensor_qos_profile
-            );
-
-            odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry", sensor_qos_profile);
-            odometryTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
-
-            inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu", sensor_qos_profile);
-            inertialTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
-
-        }
+    public :
+        Turtlebot();
 };
