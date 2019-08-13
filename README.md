@@ -6,8 +6,8 @@ This is the turtlebot2 bring up on Dashing(ROS2)
  turtlebot2/odometry    - you can subscribe odometry.  
  turtlebot2/imu     - you can subscribe inertial sensor data.
  
-## crytical stop
- If you bring up the turtlebot2, turtlebot execute the crytical stop function.
+## dashing stop
+ If you bring up the turtlebot2, turtlebot execute the dashing stop function.
 
 ## INSTALL
  First, you have to build using colcon builder.

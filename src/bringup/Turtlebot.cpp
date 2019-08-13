@@ -94,9 +94,13 @@ void Turtlebot::publishOdometry() {
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
 
-    N_linear_x_velocity = ((N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
-    N_linear_y_velocity = ((O_position_x - N_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
-    N_linear_z_velocity = (N_orientation_theta - O_orientation_theta)/0.02;
+    //N_linear_x_velocity = ((N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
+    //N_linear_y_velocity = ((O_position_x - N_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
+    //N_linear_z_velocity = (N_orientation_theta - O_orientation_theta)/0.02;
+
+    N_linear_x_velocity = calculateVelocity(N_position_x, O_position_x, 0.02);
+    N_linear_y_velocity = calculateVelocity(N_position_y, O_position_y, 0.02);
+    N_linear_z_velocity = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.02);
 
     odom_msg.twist.twist.linear.x = N_linear_x_velocity;
     odom_msg.twist.twist.linear.y = N_linear_y_velocity;
