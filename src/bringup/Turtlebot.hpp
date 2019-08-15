@@ -3,6 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <std_msgs/msg/string.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -36,6 +37,7 @@ class Turtlebot : public rclcpp::Node {
 
 		// init subscription
 		rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr reset_pose;
 
 		// init publisher
 		rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
@@ -64,6 +66,8 @@ class Turtlebot : public rclcpp::Node {
 		// check Wheel Drop
 		void checkWheelDrop();
 
+        void resetPose(std_msgs::msg::Bool::SharedPtr msg);
+
 		// translate_coordinate
         geometry_msgs::msg::Quaternion translateCoordinate(double x, double y, double z);
 
@@ -80,9 +84,7 @@ class Turtlebot : public rclcpp::Node {
 		void publishInertial();
 
 		// Quality of Service
-		rmw_qos_profile_t odom_qos_profile = rmw_qos_profile_sensor_data;
-		rmw_qos_profile_t imu_qos_profile = rmw_qos_profile_sensor_data;
-		rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
+		rmw_qos_profile_t sensor_qos_profile = rmw_qos_profile_sensor_data;
 
 	public :
 		Turtlebot() :
@@ -92,13 +94,21 @@ class Turtlebot : public rclcpp::Node {
 					[this](geometry_msgs::msg::Twist::SharedPtr msg) {
 						controleByVelocity(msg);
 					},
-                    cmd_vel_qos_profile
+                    sensor_qos_profile
 				);
 
-				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom");
+                reset_pose = this->create_subscription<std_msgs::msg::Bool>(
+                    "reset_pose",
+                    [this](std_msgs::msg::Bool::SharedPtr msg) {
+                        resetPose(msg);    
+                    },
+                    sensor_qos_profile
+                );
+
+				odom = this->create_publisher<nav_msgs::msg::Odometry>("odom", sensor_qos_profile);
 				odom_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 				
-				inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu");
+				inertial = this->create_publisher<sensor_msgs::msg::Imu>("imu", sensor_qos_profile);
 				inertial_timer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 			}
 };

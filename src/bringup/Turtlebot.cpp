@@ -9,12 +9,20 @@ using namespace std;
 
 
 // ホイールが地面から離れたことを検知
+// check the wheels on the ground
 void Turtlebot::checkWheelDrop(){
 	if (kobuki->isRightWheelDrop() || kobuki->isLeftWheelDrop()) {
 		delete kobuki;
 		cout << "[!] Error : Wheel Drop" << endl;
 		abort();
 	}
+}
+
+// reset pose to (0, 0, 0)
+void Turtlebot::resetPose(std_msgs::msg::Bool::SharedPtr msg){
+    if (msg->data == true){
+        kobuki->setPose(0, 0, 0);    
+    }
 }
 
 
