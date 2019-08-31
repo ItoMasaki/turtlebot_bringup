@@ -36,7 +36,6 @@ KobukiBase::KobukiBase(const char* filename):
 
 KobukiBase::~KobukiBase()
 {
-  std::cout << "KobukiBase" << std::endl;
   m_Endflag = true;
   Join();
   privateBaseControl(0, 0);
