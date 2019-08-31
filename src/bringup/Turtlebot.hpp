@@ -33,6 +33,7 @@ class Turtlebot :
             PID *pid = new PID();
             float Target_Angular_Velocity = 0;
             float System_Angular_Velocity = 0;
+            float Target_Linear_Velocity = 0;
     
             // max voltage
             // float max_voltage = 15.3;

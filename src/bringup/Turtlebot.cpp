@@ -67,9 +67,20 @@ void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
 
     }
 
-    cout << System_Angular_Velocity << endl;
+    if (msg->linear.x >= 0.9) {
+        RCLCPP_INFO(this->get_logger(), "OVER 0.9 [m/s]");
+        Target_Linear_Velocity = 0.9;
 
-    kobuki->setTargetVelocity(0, Target_Angular_Velocity);
+    } else if(msg->linear.x <= -0.9) {
+        RCLCPP_INFO(this->get_logger(), "OVER -0.9 [m/s]");
+        Target_Linear_Velocity = -0.9;
+
+    } else {
+        Target_Linear_Velocity = msg->linear.x;
+
+    }
+
+    kobuki->setTargetVelocity(Target_Linear_Velocity, Target_Angular_Velocity);
 }
 
 
