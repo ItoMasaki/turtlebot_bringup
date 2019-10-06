@@ -9,22 +9,26 @@ using namespace std;
 
 
 Turtlebot::Turtlebot() : Node("Turtlebot"){
+    // Quality of Service
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    custom_qos_profile.depth = 7;
+
     kobuki = createKobuki(KobukiStringArgument(device_special));
 
     kobuki->setPose(0.0, 0.0, 0.0);    
 
     velocity = this->create_subscription<geometry_msgs::msg::Twist>(
         "turtlebot2/commands/velocity",
+        custom_qos_profile,
         [this](geometry_msgs::msg::Twist::SharedPtr msg) {
             getVelocity(msg);
-        },
-        sensor_qos_profile
+        }
     );
 
-    odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry", sensor_qos_profile);
+    odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry", custom_qos_profile);
     odometryTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 
-    inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu", sensor_qos_profile);
+    inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu", custom_qos_profile);
     inertialTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 }
 
@@ -62,13 +66,13 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
-    if (msg->angular.z >= 110) {
+    if (msg->angular.z >= 90) {
         RCLCPP_INFO(this->get_logger(), "OVER 110.0 [deg/s]");
-        Target_Angular_Velocity = M_PI*11/18;
+        Target_Angular_Velocity = M_PI*9/18;
 
-    } else if(msg->angular.z <= -110) {
+    } else if(msg->angular.z <= -90) {
         RCLCPP_INFO(this->get_logger(), "OVER -110.0 [deg/s]");
-        Target_Angular_Velocity = -M_PI*11/18;
+        Target_Angular_Velocity = -M_PI*9/18;
 
     } else {
         Target_Angular_Velocity = M_PI*msg->angular.z/180;
