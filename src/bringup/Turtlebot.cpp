@@ -9,9 +9,6 @@ using namespace std;
 
 
 Turtlebot::Turtlebot() : Node("Turtlebot"){
-    // Quality of Service
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
-    custom_qos_profile.depth = 7;
 
     kobuki = createKobuki(KobukiStringArgument(device_special));
 
@@ -19,16 +16,32 @@ Turtlebot::Turtlebot() : Node("Turtlebot"){
 
     velocity = this->create_subscription<geometry_msgs::msg::Twist>(
         "turtlebot2/commands/velocity",
-        custom_qos_profile,
+        10,
         [this](geometry_msgs::msg::Twist::SharedPtr msg) {
             getVelocity(msg);
         }
     );
 
-    odom = this->create_publisher<nav_msgs::msg::Odometry>("turtlebot2/odometry", custom_qos_profile);
+    reset = this->create_subscription<std_msgs::msg::Bool>(
+        "turtlebot2/commands/reset_pose",
+	10,
+	[this](std_msgs::msg::Bool::SharedPtr msg) {
+	    resetPose(msg);
+	}
+    );
+
+    odom = this->create_publisher<nav_msgs::msg::Odometry>(
+        "turtlebot2/odometry",
+	10
+    );
+
     odometryTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
 
-    inertial = this->create_publisher<sensor_msgs::msg::Imu>("turtlebot2/imu", custom_qos_profile);
+    inertial = this->create_publisher<sensor_msgs::msg::Imu>(
+        "turtlebot2/imu",
+        10
+    );
+
     inertialTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
 }
 
