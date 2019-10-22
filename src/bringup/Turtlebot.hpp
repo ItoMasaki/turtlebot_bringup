@@ -47,6 +47,7 @@ class Turtlebot :
     
             // init subscription
             rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity;
+	    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr reset;
     
             // init publisher
             rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
