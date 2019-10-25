@@ -1,8 +1,10 @@
 # ros2 for TurtleBot2_bringup
-This is the turtlebot2 bring up on Dashing(ROS2)
+This is the turtlebot2 bring up on Dashing.  
+Now not supported Crystal.  
 
 ## implimentation
  turtlebot2/commands/velocity - you can control by velocity which is based on Twist type.  
+ turtlebot2/commands/reset_pose - able to reset pose (0, 0, 0) by send True.  
  turtlebot2/odometry    - you can subscribe odometry.  
  turtlebot2/imu     - you can subscribe inertial sensor data.
  
