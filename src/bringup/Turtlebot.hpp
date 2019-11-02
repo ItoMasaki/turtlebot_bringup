@@ -11,8 +11,6 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
-#include "../PID/PID.hpp"
-
 using namespace rt_net;
 using namespace std;
 using namespace chrono_literals;
@@ -26,11 +24,6 @@ class Turtlebot :
             // init kobuki
             Kobuki *kobuki;
     
-            float Kp = 0.1;
-            float Ki = 0.00;
-            float Kd = 0.00;
-    
-            PID *pid = new PID();
             float Target_Angular_Velocity = 0;
             float System_Angular_Velocity = 0;
             float Target_Linear_Velocity = 0;
