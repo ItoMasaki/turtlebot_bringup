@@ -8,41 +8,87 @@
 using namespace std;
 
 
-Turtlebot::Turtlebot() : Node("Turtlebot"){
-
+Turtlebot::Turtlebot() : Node("turtlebot"){
+   /*
+    * set up kobuki for communicating.
+    * device_special is device name there may be it in /dev.
+    * If you have it, you must set up device special use 
+    */
     kobuki = createKobuki(KobukiStringArgument(device_special));
 
-    kobuki->setPose(0.0, 0.0, 0.0);    
+   /*
+    * run pose reset.
+    */
+    kobuki->setPose(0.0, 0.0, 0.0);
 
+    odom_trans.header.frame_id = "odom";
+    odom_trans.child_frame_id = "base_link";
+
+    odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+
+   /*
+    * subscription for command velocity to send kobuki velocity.
+    * reveive only Twist structure in geometry_msgs.
+    */
     velocity = this->create_subscription<geometry_msgs::msg::Twist>(
         "turtlebot2/commands/velocity",
         10,
-        [this](geometry_msgs::msg::Twist::SharedPtr msg) {
+        [this](geometry_msgs::msg::Twist::SharedPtr msg)
+        {
             getVelocity(msg);
         }
     );
 
+   /*
+    * subscription for command reset pose to send kobuki to run reset pose.
+    * receive onlu Bool structure in std_msgs.
+    */
     reset = this->create_subscription<std_msgs::msg::Bool>(
         "turtlebot2/commands/reset_pose",
-	10,
-	[this](std_msgs::msg::Bool::SharedPtr msg) {
-	    resetPose(msg);
-	}
+	    10,
+	    [this](std_msgs::msg::Bool::SharedPtr msg)
+        {
+	        resetPose(msg);
+	    }
     );
 
+   /*
+    * publisher for send Odometry message.
+    */
     odom = this->create_publisher<nav_msgs::msg::Odometry>(
         "turtlebot2/odometry",
-	10
+	    10
     );
 
-    odometryTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishOdometry, this));
+   /*
+    * create timer for subscribe and publish odometry.
+    * 20ms means that kobuki can only send data for its rate.
+    */
+    odometryTimer = this->create_wall_timer(
+        20ms,
+        bind(&Turtlebot::publishOdometry, this)
+    );
 
+   /*
+    * imu can't use!!!
+    */
     inertial = this->create_publisher<sensor_msgs::msg::Imu>(
         "turtlebot2/imu",
         10
     );
 
-    inertialTimer = this->create_wall_timer(20ms, bind(&Turtlebot::publishInertial, this));
+   /*
+    * recieve inertial data from kobuki.
+    */
+    inertialTimer = this->create_wall_timer(
+        20ms,
+        bind(&Turtlebot::publishInertial, this)
+    );
+
+    emergencyTimer = this->create_wall_timer(
+        20ms,
+        bind(&Turtlebot::getEmergency, this)
+    );
 }
 
 
@@ -79,17 +125,19 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
-    if (msg->angular.z >= 90) {
-        RCLCPP_INFO(this->get_logger(), "OVER 110.0 [deg/s]");
+    if (msg->angular.z >= 90)
+    {
+        RCLCPP_INFO(this->get_logger(), "OVER 90.0 [deg/s]");
         Target_Angular_Velocity = M_PI*9/18;
-
-    } else if(msg->angular.z <= -90) {
-        RCLCPP_INFO(this->get_logger(), "OVER -110.0 [deg/s]");
+    }
+    else if(msg->angular.z <= -90)
+    {
+        RCLCPP_INFO(this->get_logger(), "OVER -90.0 [deg/s]");
         Target_Angular_Velocity = -M_PI*9/18;
-
-    } else {
+    }
+    else
+    {
         Target_Angular_Velocity = M_PI*msg->angular.z/180;
-
     }
 
     if (msg->linear.x >= 0.9) {
@@ -115,24 +163,20 @@ void Turtlebot::publishOdometry() {
 
     kobuki->getPose(&N_position_x, &N_position_y, &N_orientation_theta);
 
-    // calculate delata time
-    now_time = chrono::system_clock::now();
-    auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
-    auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
-
-    millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
+    odom_trans.header.stamp = get_clock()->now();
+    odom_trans.transform.translation.x = N_position_x;
+    odom_trans.transform.translation.y = N_position_y;
+    odom_trans.transform.translation.z = 0;
+    odom_trans.transform.rotation = translateCoordinate(0.0, 0.0, N_orientation_theta);
+    odom_broadcaster->sendTransform(odom_trans);
+    
 
     odom_msg.child_frame_id = "base_footprint";
-    odom_msg.header.frame_id = "odom";
-    odom_msg.header.stamp.sec = delta_seconds.count();
-    odom_msg.header.stamp.nanosec = millisec;
+    odom_msg.header.frame_id = "base_link";
+    odom_msg.header.stamp = get_clock()->now();
     odom_msg.pose.pose.position.x = N_position_x;
     odom_msg.pose.pose.position.y = N_position_y;
     odom_msg.pose.pose.orientation = translateCoordinate(0.0, 0.0, N_orientation_theta);
-
-    //N_linear_x_velocity = ((N_position_x - O_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
-    //N_linear_y_velocity = ((O_position_x - N_position_x)*cos(O_orientation_theta) + (N_position_y - O_position_y)*sin(O_orientation_theta))/0.02;
-    //N_linear_z_velocity = (N_orientation_theta - O_orientation_theta)/0.02;
 
     N_linear_x_velocity = calculateVelocity(N_position_x, O_position_x, 0.02);
     N_linear_y_velocity = calculateVelocity(N_position_y, O_position_y, 0.02);
@@ -158,19 +202,20 @@ double Turtlebot::calculateVelocity(double N_position, double O_position, float 
 
 // 回転慣性値のブロードキャスト
 void Turtlebot::publishInertial() {
+
+    if (isnan(heading_offset) == true){
+        heading_offset = (static_cast<double>(kobuki->getInertialAngle()) / 100.0) * M_PI / 180.0;
+    }
+
     auto imu_msg = sensor_msgs::msg::Imu();
 
-    now_time = chrono::system_clock::now();
-    auto delta_seconds = chrono::duration_cast<chrono::seconds>(now_time - base_time);
-    auto delta_milliseconds = chrono::duration_cast<chrono::milliseconds>(now_time - base_time);
+    imu_msg.header.frame_id  = "gyro_link";
+    imu_msg.header.stamp     = get_clock()->now();
 
-    millisec = delta_milliseconds.count() - delta_seconds.count()*1000;
+    heading = (static_cast<double>(kobuki->getInertialAngle()) / 100.0) * M_PI / 180.0;
+    head_angle = heading - heading_offset;
 
-    imu_msg.header.frame_id      = "imu";
-    imu_msg.header.stamp.sec     = delta_seconds.count();
-    imu_msg.header.stamp.nanosec = millisec;
-
-    imu_msg.orientation = translateCoordinate(0, 0, kobuki->getInertialAngle());
+    imu_msg.orientation = translateCoordinate(0, 0, head_angle);
 
     imu_msg.angular_velocity.x = 0.0;
     imu_msg.angular_velocity.y = 0.0;
@@ -187,4 +232,12 @@ void Turtlebot::publishInertial() {
     imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
 
     inertial->publish(imu_msg);
+}
+
+void Turtlebot::getEmergency() {
+    if (kobuki->getAnalogIn(0) < 3.0 && N_position_x != 0) {
+        delete kobuki;
+        RCLCPP_INFO(this->get_logger(), "Pushed Emergency Botton");
+        abort();
+    }
 }
