@@ -57,6 +57,7 @@ class Turtlebot :
             rclcpp::TimerBase::SharedPtr odometryTimer;
             rclcpp::TimerBase::SharedPtr inertialTimer;
             rclcpp::TimerBase::SharedPtr PIDTimer;
+            rclcpp::TimerBase::SharedPtr emergencyTimer;
       
             // now position
             double N_position_x = 0;
@@ -104,6 +105,9 @@ class Turtlebot :
     
             // publish inertial
             void publishInertial();
+
+            // get emergency
+            void getEmergency();
 
             void resetPose(std_msgs::msg::Bool::SharedPtr msg);
     

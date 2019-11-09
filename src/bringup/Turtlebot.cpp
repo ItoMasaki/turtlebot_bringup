@@ -84,6 +84,11 @@ Turtlebot::Turtlebot() : Node("turtlebot"){
         20ms,
         bind(&Turtlebot::publishInertial, this)
     );
+
+    emergencyTimer = this->create_wall_timer(
+        20ms,
+        bind(&Turtlebot::getEmergency, this)
+    );
 }
 
 
@@ -227,4 +232,12 @@ void Turtlebot::publishInertial() {
     imu_msg.angular_velocity.z = kobuki->getInertialAngleRate();
 
     inertial->publish(imu_msg);
+}
+
+void Turtlebot::getEmergency() {
+    if (kobuki->getAnalogIn(0) < 3.0 && N_position_x != 0) {
+        delete kobuki;
+        RCLCPP_INFO(this->get_logger(), "Pushed Emergency Botton");
+        abort();
+    }
 }
