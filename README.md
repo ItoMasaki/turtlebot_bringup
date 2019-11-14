@@ -1,4 +1,4 @@
-# ros2 for TurtleBot2_bringup
+# ros2 for TurtleBot2_bringup　(Ver. 1.0.0)
 This is the turtlebot2 bring up on Dashing.  
 Now not supported Crystal.  
 
