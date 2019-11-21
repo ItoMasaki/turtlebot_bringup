@@ -172,7 +172,7 @@ void Turtlebot::publishOdometry() {
     
 
     odom_msg.child_frame_id = "base_footprint";
-    odom_msg.header.frame_id = "base_link";
+    odom_msg.header.frame_id = "map";
     odom_msg.header.stamp = get_clock()->now();
     odom_msg.pose.pose.position.x = N_position_x;
     odom_msg.pose.pose.position.y = N_position_y;
