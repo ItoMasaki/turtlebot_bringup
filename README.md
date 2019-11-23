@@ -6,7 +6,7 @@ Now not supported Crystal.
 turtlebot2/commands/velocity  
  - you can control by velocity which is based on Twist type.  
  If you use anguler velocity, you have to use way of degree.  
- So you can only use from -100 to 100 \[degree/t.\]
+ So you can only use from -100 to 100 \[degree/sec\]
  
 turtlebot2/commands/reset_pose  
  - able to reset pose (0, 0, 0) by send True.  
