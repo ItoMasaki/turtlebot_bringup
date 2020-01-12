@@ -21,8 +21,6 @@ using namespace chrono_literals;
 class Turtlebot :
     public rclcpp::Node {
         private :
-            // kobuki device special
-            const char * device_special = "/dev/kobuki";
 
             // init kobuki
             Kobuki *kobuki;

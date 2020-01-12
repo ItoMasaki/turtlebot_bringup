@@ -10,9 +10,22 @@ using namespace std;
 
 Turtlebot::Turtlebot() : Node("turtlebot"){
    /*
+    * These lines are declaration parameter lines.
+    */
+    declare_parameter("OdomTransFrameId",       "base_link");
+    declare_parameter("OdomTransChildFrameId",  "odom");
+    declare_parameter("DeviceSpecial",          "/dev/kobuki");
+    declare_parameter("TurtlebotVelocityTopic", "turtlebot2/commands/velocity");
+
+   /*
+    * kobuki device special
+    */
+    const string device_special = this->get_parameter("DeviceSpecial").as_string();
+
+   /*
     * set up kobuki for communicating.
     * device_special is device name there may be it in /dev.
-    * If you have it, you must set up device special use 
+    * If you have it, you must set up device special use
     */
     kobuki = createKobuki(KobukiStringArgument(device_special));
 
@@ -21,17 +34,19 @@ Turtlebot::Turtlebot() : Node("turtlebot"){
     */
     kobuki->setPose(0.0, 0.0, 0.0);
 
-    odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_link";
+    odom_trans.header.frame_id = this->get_parameter("OdomTransFrameId").as_string();
+    odom_trans.child_frame_id = this->get_parameter("OdomTransChildFrameId").as_string();
 
     odom_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+
+    const string cmd_vel_topic_name = this->get_parameter("TurtlebotVelocityTopic").as_string();
 
    /*
     * subscription for command velocity to send kobuki velocity.
     * reveive only Twist structure in geometry_msgs.
     */
     velocity = this->create_subscription<geometry_msgs::msg::Twist>(
-        "turtlebot2/commands/velocity",
+        cmd_vel_topic_name,
         10,
         [this](geometry_msgs::msg::Twist::SharedPtr msg)
         {
@@ -125,19 +140,19 @@ geometry_msgs::msg::Quaternion Turtlebot::translateCoordinate(double x, double y
 void Turtlebot::getVelocity(geometry_msgs::msg::Twist::SharedPtr msg) {
     checkWheelDrop();
 
-    if (msg->angular.z >= 90)
+    if (msg->angular.z >= M_PI/2)
     {
         RCLCPP_INFO(this->get_logger(), "OVER 90.0 [deg/s]");
-        Target_Angular_Velocity = M_PI*9/18;
+        Target_Angular_Velocity = M_PI/2;
     }
-    else if(msg->angular.z <= -90)
+    else if(msg->angular.z <= -M_PI/2)
     {
         RCLCPP_INFO(this->get_logger(), "OVER -90.0 [deg/s]");
-        Target_Angular_Velocity = -M_PI*9/18;
+        Target_Angular_Velocity = -M_PI/2;
     }
     else
     {
-        Target_Angular_Velocity = M_PI*msg->angular.z/180;
+        Target_Angular_Velocity = msg->angular.z;
     }
 
     if (msg->linear.x >= 0.9) {
@@ -169,9 +184,9 @@ void Turtlebot::publishOdometry() {
     odom_trans.transform.translation.z = 0;
     odom_trans.transform.rotation = translateCoordinate(0.0, 0.0, N_orientation_theta);
     odom_broadcaster->sendTransform(odom_trans);
-    
 
-    odom_msg.child_frame_id = "base_footprint";
+
+    odom_msg.child_frame_id = "base_link";
     odom_msg.header.frame_id = "map";
     odom_msg.header.stamp = get_clock()->now();
     odom_msg.pose.pose.position.x = N_position_x;
