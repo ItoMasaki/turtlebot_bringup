@@ -12,10 +12,10 @@ Turtlebot::Turtlebot() : Node("turtlebot"){
    /*
     * These lines are declaration parameter lines.
     */
-    declare_parameter("OdomTransFrameId",       "base_link");
-    declare_parameter("OdomTransChildFrameId",  "odom");
+    declare_parameter("OdomTransFrameId",       "odom");
+    declare_parameter("OdomTransChildFrameId",  "base_link");
     declare_parameter("DeviceSpecial",          "/dev/kobuki");
-    declare_parameter("TurtlebotVelocityTopic", "turtlebot2/commands/velocity");
+    declare_parameter("TurtlebotVelocityTopic", "cmd_vel");
 
    /*
     * kobuki device special
