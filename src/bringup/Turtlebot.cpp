@@ -287,5 +287,7 @@ void Turtlebot::getButtonPush() {
     button_1->publish(bool_msg);
     bool_msg.data = kobuki->isButton2();
     button_2->publish(bool_msg);
+
+    // add button publish
 }
 
