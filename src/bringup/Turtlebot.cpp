@@ -76,6 +76,24 @@ Turtlebot::Turtlebot() : Node("turtlebot"){
     );
 
    /*
+    * publisher for sending pushed button.
+    */
+    button_0 = this->create_publisher<std_msgs::msg::Bool>(
+        "turtlebot2/button0",
+        10
+    );
+
+    button_1 = this->create_publisher<std_msgs::msg::Bool>(
+        "turtlebot2/button1",
+        10
+    );
+
+    button_2 = this->create_publisher<std_msgs::msg::Bool>(
+        "turtlebot2/button2",
+        10
+    );
+
+   /*
     * create timer for subscribe and publish odometry.
     * 20ms means that kobuki can only send data for its rate.
     */
@@ -103,6 +121,11 @@ Turtlebot::Turtlebot() : Node("turtlebot"){
     emergencyTimer = this->create_wall_timer(
         20ms,
         bind(&Turtlebot::getEmergency, this)
+    );
+
+    buttonTimer = this->create_wall_timer(
+        20ms,
+        bind(&Turtlebot::getButtonPush, this)
     );
 }
 
@@ -256,3 +279,15 @@ void Turtlebot::getEmergency() {
         abort();
     }
 }
+
+void Turtlebot::getButtonPush() {
+    bool_msg.data = kobuki->isButton0();
+    button_0->publish(bool_msg);
+    bool_msg.data = kobuki->isButton1();
+    button_1->publish(bool_msg);
+    bool_msg.data = kobuki->isButton2();
+    button_2->publish(bool_msg);
+
+    // add button publish
+}
+
