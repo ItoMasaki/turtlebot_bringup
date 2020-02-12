@@ -45,8 +45,11 @@ class Turtlebot :
     
             // init publisher
             rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery;
-            rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
             rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr inertial;
+            rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom;
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr button_0;
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr button_1;
+            rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr button_2;
             
             // transform broadcaster
             std::shared_ptr<tf2_ros::TransformBroadcaster> odom_broadcaster;
@@ -56,6 +59,7 @@ class Turtlebot :
             rclcpp::TimerBase::SharedPtr inertialTimer;
             rclcpp::TimerBase::SharedPtr PIDTimer;
             rclcpp::TimerBase::SharedPtr emergencyTimer;
+            rclcpp::TimerBase::SharedPtr buttonTimer;
       
             // now position
             double N_position_x = 0;
@@ -88,6 +92,9 @@ class Turtlebot :
     
             // init odom
             nav_msgs::msg::Odometry odom_msg = nav_msgs::msg::Odometry();
+
+            // init bool
+            std_msgs::msg::Bool bool_msg = std_msgs::msg::Bool();
        
             // calculate velocity
             double calculateVelocity(double now_velocity, double old_velocity, float time);
@@ -106,6 +113,8 @@ class Turtlebot :
 
             // get emergency
             void getEmergency();
+
+            void getButtonPush();
 
             void resetPose(std_msgs::msg::Bool::SharedPtr msg);
     
