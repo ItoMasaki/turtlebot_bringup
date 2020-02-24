@@ -39,7 +39,7 @@ add_executable(turtlebot2 src/bringup/turtlebot2.cpp src/bringup/Turtlebot.cpp k
 
 add_executable(teleop_node src/teleop/teleop_node.cpp)
 
-ament_target_dependencies(turtlebot2 rclcpp tf2_ros std_msgs geometry_msgs nav_msgs sensor_msgs lib/Turtlebot lib/DockingController lib/Kobuki_impl lib/Thread lib/Transport lib/kobuki lib/KobukiBase lib/SerialPort lib/Translator lib/kobukicwrapper)
+ament_target_dependencies(turtlebot2 rclcpp tf2_ros std_msgs geometry_msgs nav_msgs sensor_msgs)
 
 ament_target_dependencies(teleop_node rclcpp sensor_msgs geometry_msgs)
 

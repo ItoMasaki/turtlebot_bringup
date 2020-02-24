@@ -11,8 +11,8 @@ class TeleopNode : public rclcpp::Node {
         TeleopNode()
             : Node("teleop")
         {
-            vel_topic = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel");
-            joy_topic = this->create_subscription<sensor_msgs::msg::Joy>("/joy", std::bind(&TeleopNode::callback, this, _1));
+            vel_topic = this->create_publisher<geometry_msgs::msg::Twist>("/turtlebot/command/velocity", 10);
+            joy_topic = this->create_subscription<sensor_msgs::msg::Joy>("/joy", 10, std::bind(&TeleopNode::callback, this, _1));
         }
 
     private:

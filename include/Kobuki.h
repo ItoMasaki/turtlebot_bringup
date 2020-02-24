@@ -359,6 +359,8 @@ namespace rt_net {
      */
     virtual double getPoseTh() = 0;
 
+    virtual double getRotate() = 0;
+
     /**
      * @brief オドメトリからの現在位置推定値の同時取得
      * @param x x軸方向(m)
