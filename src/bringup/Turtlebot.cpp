@@ -218,11 +218,12 @@ void Turtlebot::publishOdometry() {
 
     N_linear_x_velocity = calculateVelocity(N_position_x, O_position_x, 0.02);
     N_linear_y_velocity = calculateVelocity(N_position_y, O_position_y, 0.02);
-    N_linear_z_velocity = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.02);
+    N_angular_z_velocity = calculateVelocity(N_orientation_theta, O_orientation_theta, 0.02);
 
     odom_msg.twist.twist.linear.x = N_linear_x_velocity;
     odom_msg.twist.twist.linear.y = N_linear_y_velocity;
-    odom_msg.twist.twist.angular.z = kobuki->getRotate();
+    //odom_msg.twist.twist.angular.z = kobuki->getRotate();
+    odom_msg.twist.twist.angular.z = N_angular_z_velocity;
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;

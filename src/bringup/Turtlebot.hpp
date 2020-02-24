@@ -69,7 +69,7 @@ class Turtlebot :
             // now velocity
             double N_linear_x_velocity = 0;
             double N_linear_y_velocity = 0;
-            double N_linear_z_velocity = 0;
+            double N_angular_z_velocity = 0;
       
             // old position
             double O_position_x = 0;
