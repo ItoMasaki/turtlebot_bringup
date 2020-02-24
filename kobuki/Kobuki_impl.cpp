@@ -97,7 +97,7 @@ void Kobuki_impl::processOdometry() {
 
   double forward = (double)(deltaRightEncoder + deltaLeftEncoder) 
     * m_WheelRadius * m_PulseToRadian / 2.0;
-  double rotate  = (double)(deltaRightEncoder - deltaLeftEncoder) 
+  rotate  = (double)(deltaRightEncoder - deltaLeftEncoder) 
     * m_WheelRadius * m_PulseToRadian / m_LengthOfShaft;
   
   m_X += forward * cos( m_Th + rotate / 2.0);

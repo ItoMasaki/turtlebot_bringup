@@ -222,7 +222,7 @@ void Turtlebot::publishOdometry() {
 
     odom_msg.twist.twist.linear.x = N_linear_x_velocity;
     odom_msg.twist.twist.linear.y = N_linear_y_velocity;
-    odom_msg.twist.twist.angular.z = N_linear_z_velocity;
+    odom_msg.twist.twist.angular.z = kobuki->getRotate();
 
     O_position_x = N_position_x;
     O_position_y = N_position_y;
@@ -290,4 +290,3 @@ void Turtlebot::getButtonPush() {
 
     // add button publish
 }
-

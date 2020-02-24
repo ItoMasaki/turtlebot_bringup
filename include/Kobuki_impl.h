@@ -25,6 +25,7 @@ namespace rt_net {
     const static double m_WheelRadius;
     uint16_t m_OldRightEncoder, m_OldLeftEncoder;
     double m_X, m_Y, m_Th;
+    double rotate;
 
   private:
     DOCKSTATE m_DockingMode;
@@ -89,6 +90,7 @@ namespace rt_net {
     double getPoseX() {return m_X;}
     double getPoseY() {return m_Y;}
     double getPoseTh() {return m_Th;}
+    double getRotate() {return rotate;}
     uint16_t getRightMotorEncoder() {return m_RightEncoder;}
     uint16_t getLeftMotorEncoder() {return m_LeftEncoder;}
 
