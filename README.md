@@ -3,7 +3,7 @@ This is the turtlebot2 bring up on Dashing.
 Now not supported Crystal.  
 
 ## implimentation
-turtlebot2/commands/velocity  
+/cmd_vel
  - you can control by velocity which is based on Twist type.  
  If you use anguler velocity, you have to use way of degree.  
  So you can only use from -100 to 100 \[degree/sec\]
